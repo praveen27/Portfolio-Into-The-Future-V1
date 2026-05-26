@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio Into The Future</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #F2F4F7;
+  --surface: #FFFFFF;
+  --sidebar: #0F1923;
+  --sidebar2: #1A2535;
+  --accent: #1D9E75;
+  --accent-d: #0F6E56;
+  --accent-l: #E1F5EE;
+  --border: rgba(0,0,0,0.07);
+  --text: #111827;
+  --muted: #6B7280;
+  --faint: #9CA3AF;
+  --radius: 11px;
+  --p10: #DC2626; --p10-l: #FEF2F2;
+  --p25: #D97706; --p25-l: #FFFBEB;
+  --p50: #1D9E75; --p50-l: #ECFDF5;
+  --p75: #2563EB; --p75-l: #EFF6FF;
+  --p90: #7C3AED; --p90-l: #F5F3FF;
+}
+html, body { height: 100%; overflow: hidden; }
+body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--bg); color: var(--text); display: grid; grid-template-columns: 270px 1fr; }
+
+/* ─── SIDEBAR ─── */
+.sidebar { background: var(--sidebar); display: flex; flex-direction: column; height: 100vh; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent; }
+.sb-header { padding: 22px 20px 16px; border-bottom: 0.5px solid rgba(255,255,255,0.07); }
+.sb-header h1 { font-size: 14px; font-weight: 600; color: #fff; letter-spacing: 0.01em; }
+.sb-header p { font-size: 11px; color: #64748B; margin-top: 3px; }
+.sb-body { padding: 18px 20px; display: flex; flex-direction: column; gap: 16px; flex: 1; }
+.sb-footer { padding: 14px 20px; border-top: 0.5px solid rgba(255,255,255,0.07); }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field > label { font-size: 10.5px; font-weight: 500; color: #64748B; letter-spacing: 0.06em; text-transform: uppercase; }
+.field input {
+  background: rgba(255,255,255,0.06); border: 0.5px solid rgba(255,255,255,0.12); border-radius: 7px;
+  padding: 8px 10px; font-size: 13px; font-family: 'DM Mono', monospace; color: #E2E8F0; outline: none; width: 100%;
+  transition: border-color 0.15s, background 0.15s;
+}
+.field input:focus { border-color: var(--accent); background: rgba(29,158,117,0.08); }
+.field input:hover:not(:focus) { border-color: rgba(255,255,255,0.22); }
+.toggle { display: flex; border-radius: 7px; overflow: hidden; border: 0.5px solid rgba(255,255,255,0.12); }
+.toggle button {
+  flex: 1; padding: 8px 6px; font-size: 12px; font-weight: 500; font-family: 'DM Sans', sans-serif;
+  background: rgba(255,255,255,0.05); border: none; color: #64748B; cursor: pointer; transition: all 0.15s;
+}
+.toggle button.act { background: var(--accent); color: #fff; }
+.iwr { position: relative; }
+.iwr .sym { position: absolute; top: 50%; transform: translateY(-50%); font-size: 12px; color: #64748B; pointer-events: none; }
+.iwr .sym.pre { left: 10px; }
+.iwr .sym.suf { right: 10px; }
+.iwr input.hpre { padding-left: 20px; }
+.iwr input.hsuf { padding-right: 22px; }
+.divider { height: 0.5px; background: rgba(255,255,255,0.07); }
+.run-btn {
+  width: 100%; padding: 11px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600;
+  font-family: 'DM Sans', sans-serif; background: var(--accent); color: #fff; cursor: pointer;
+  letter-spacing: 0.01em; transition: background 0.15s, transform 0.1s;
+}
+.run-btn:hover { background: var(--accent-d); }
+.run-btn:active { transform: scale(0.98); }
+.run-btn:disabled { background: #1E293B; color: #475569; cursor: not-allowed; transform: none; }
+.progress { margin-top: 2px; display: none; }
+.progress.show { display: block; }
+.prog-track { height: 3px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; margin-bottom: 5px; }
+.prog-fill { height: 100%; background: var(--accent); border-radius: 2px; width: 0%; transition: width 0.12s; }
+.prog-label { font-size: 11px; color: #64748B; }
+.info-pill { background: rgba(29,158,117,0.1); border: 0.5px solid rgba(29,158,117,0.25); border-radius: 8px; padding: 10px 12px; font-size: 11px; color: #34D399; line-height: 1.65; }
+
+/* ─── MAIN ─── */
+.main { height: 100vh; overflow-y: auto; padding: 24px 28px; display: flex; flex-direction: column; gap: 18px; }
+.main-header h2 { font-size: 20px; font-weight: 600; color: var(--text); }
+.main-header .byline { font-size: 20px; font-weight: 600; font-style: normal;
+                       color: var(--accent); margin-top: 2px; letter-spacing: 0.01em; }
+.main-header p { font-size: 13px; color: var(--muted); margin-top: 3px; }
+.hidden { display: none !important; }
+
+/* ─── MILESTONE CARDS ─── */
+.m-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.m-card { background: var(--surface); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 16px 18px; }
+.m-card .tag { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 7px; }
+.m-card .val { font-size: 22px; font-weight: 600; font-family: 'DM Mono', monospace; line-height: 1; }
+.m-card .sub { font-size: 11px; color: var(--muted); margin-top: 5px; }
+.m-card.p10 { border-top: 2.5px solid var(--p10); } .m-card.p10 .tag, .m-card.p10 .val { color: var(--p10); }
+.m-card.p25 { border-top: 2.5px solid var(--p25); } .m-card.p25 .tag, .m-card.p25 .val { color: var(--p25); }
+.m-card.p50 { border-top: 2.5px solid var(--p50); } .m-card.p50 .tag, .m-card.p50 .val { color: var(--p50); }
+.m-card.p90 { border-top: 2.5px solid var(--p90); } .m-card.p90 .tag, .m-card.p90 .val { color: var(--p90); }
+
+/* ─── CHART ROW ─── */
+.chart-row { display: grid; grid-template-columns: 3fr 2fr; gap: 14px; }
+.card { background: var(--surface); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 18px 20px; }
+.card-hdr { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
+.card-title { font-size: 12px; font-weight: 600; color: var(--text); letter-spacing: 0.01em; }
+.card-sub { font-size: 11px; color: var(--faint); }
+.chart-wrap { position: relative; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; }
+.leg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
+.leg-line { width: 20px; height: 0; border-top-width: 2px; border-top-style: solid; }
+.leg-line.dashed { border-top-style: dashed; }
+
+/* ─── HEAT MAP ─── */
+.heatmap-card { background: var(--surface); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 18px 20px; }
+.hm-canvas-wrap { position: relative; width: 100%; }
+canvas#heatCanvas { display: block; width: 100%; }
+
+/* ─── Sampling method controls ─── */
+.samp-desc { font-size:10.5px; color:#64748B; line-height:1.5; margin-top:5px; }
+
+/* ─── Range slider ─── */
+.rs-wrap { display:flex; flex-direction:column; gap:5px; }
+.rs-track-row { position:relative; height:28px; display:flex; align-items:center; }
+.rs-track { position:relative; width:100%; height:5px;
+            background:rgba(255,255,255,0.12); border-radius:3px; cursor:pointer; }
+.rs-fill  { position:absolute; height:100%; background:var(--accent);
+            border-radius:3px; cursor:grab; }
+.rs-fill:active  { cursor:grabbing; }
+.rs-thumb { position:absolute; width:15px; height:15px; border-radius:50%;
+            background:#fff; top:50%; transform:translate(-50%,-50%);
+            cursor:grab; z-index:2; box-shadow:0 1px 4px rgba(0,0,0,.45);
+            transition:transform .1s; }
+.rs-thumb:hover  { transform:translate(-50%,-50%) scale(1.2); }
+.rs-thumb:active { cursor:grabbing; transform:translate(-50%,-50%) scale(1.15); }
+.rs-ticks { position:relative; height:16px; margin-top:2px; }
+.rs-tick  { position:absolute; transform:translateX(-50%);
+            font-size:9px; color:#475569; white-space:nowrap; }
+.rs-info  { font-size:11px; font-family:'DM Mono',monospace; color:var(--accent); }
+.rs-warn  { color:#EF4444 !important; }
+
+.hm-legend-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-size: 11px; color: var(--muted); flex-wrap: wrap; }
+.hm-scale-wrap { display: flex; align-items: center; gap: 6px; }
+canvas#scaleLegend { border-radius: 3px; }
+.hm-overlay-legend { display: flex; gap: 14px; margin-left: 16px; flex-wrap: wrap; }
+.hm-leg-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
+.hm-leg-dash { width: 20px; height: 0; border-top: 2px solid; }
+
+/* ─── TABLE ─── */
+.pt-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.pt-table th { text-align: right; padding: 7px 12px; font-size: 10.5px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--faint); border-bottom: 0.5px solid var(--border); }
+.pt-table th:first-child { text-align: left; }
+.pt-table td { padding: 8px 12px; border-bottom: 0.5px solid rgba(0,0,0,0.04); font-family: 'DM Mono', monospace; font-size: 13px; text-align: right; }
+.pt-table td:first-child { text-align: left; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 12px; }
+.pt-table tr:last-child td { border-bottom: none; }
+.pt-table th:last-child { min-width: 220px; }
+.pt-table td:last-child { letter-spacing: -0.01em; }
+.pt-table tr:hover td { background: rgba(0,0,0,0.015); }
+.avg-ret { font-size:10px; color:var(--muted); margin-top:2px;
+           font-family:'DM Mono',monospace; font-weight:400; }
+.cp10 { color: var(--p10); } .cp25 { color: var(--p25); } .cp50 { color: var(--p50); } .cp75 { color: var(--p75); } .cp90 { color: var(--p90); }
+
+/* ─── DEPLETION ─── */
+.dep-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.dep-item { text-align: center; padding: 14px; background: var(--bg); border-radius: 9px; }
+.dep-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+.dep-val { font-size: 22px; font-weight: 600; font-family: 'DM Mono', monospace; }
+.dep-val.ok { color: var(--p50); }
+.dep-val.warn { color: var(--p25); }
+.dep-val.bad { color: var(--p10); }
+.dep-count { font-size: 11px; color: var(--faint); margin-top: 3px; }
+
+/* ─── FOOTER NOTE ─── */
+
+/* ─── Depletion chart section ─── */
+.dep-chart-wrap { position:relative; width:100%; height:200px; margin-bottom:10px; }
+.dep-stats-row  { display:flex; gap:10px; flex-wrap:wrap; margin-top:4px; }
+.dep-stat-item  { flex:1; min-width:110px; text-align:center;
+                  padding:10px 8px; background:var(--bg); border-radius:8px; }
+.dep-stat-label { font-size:11px; color:var(--muted); margin-bottom:4px; }
+.dep-stat-val   { font-size:18px; font-weight:600; font-family:'DM Mono',monospace; }
+.dep-stat-val.ok   { color:var(--p50); }
+.dep-stat-val.warn { color:var(--p25); }
+.dep-stat-val.bad  { color:var(--p10); }
+.dep-stat-count { font-size:10px; color:var(--faint); margin-top:2px; }
+.dep-note { font-size:11px; color:var(--muted); font-style:italic; padding:6px 0; }
+
+
+.foot-note { font-size: 11px; color: var(--faint); line-height: 1.7; padding: 4px 0 6px; }
+.citation-note { font-size: 10.5px; color: var(--faint); line-height: 1.7;
+                 border-top: 0.5px solid var(--border); padding-top: 8px; margin-top: 2px; }
+.citation-note a { color: var(--accent); text-decoration: none; }
+.citation-note a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<!-- ════ SIDEBAR ════ -->
+<aside class="sidebar">
+  <div class="sb-header">
+    <h1>Portfolio Into The Future</h1>
+    <p>S&amp;P 500 historical returns · 1954–2023</p>
+  </div>
+  <div class="sb-body">
+
+    <div class="field">
+      <label>Starting portfolio</label>
+      <div class="iwr">
+        <span class="sym pre">$</span>
+        <input type="number" id="startVal" value="2000000" step="50000" class="hpre">
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="field">
+      <label>Withdrawal mode</label>
+      <div class="toggle">
+        <button class="act" id="btnFixed" type="button" onclick="setMode('fixed')">Fixed $</button>
+        <button id="btnPct" type="button" onclick="setMode('pct')">% of portfolio</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label id="wdLabel">Annual withdrawal</label>
+      <div class="iwr">
+        <span class="sym pre" id="wdPre">$</span>
+        <span class="sym suf hidden" id="wdSuf">%</span>
+        <input type="number" id="wdAmt" value="80000" step="5000" class="hpre">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Withdrawals start year #</label>
+      <input type="number" id="wdYear" value="5" min="1" max="30">
+    </div>
+
+    <div class="field">
+      <label>Inflation rate (%)</label>
+      <div class="iwr">
+        <span class="sym suf">%</span>
+        <input type="number" id="inflationRate" value="3" min="0" max="20" step="0.1" class="hsuf">
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="field">
+      <label>Annual addition ($)</label>
+      <div class="iwr">
+        <span class="sym pre">$</span>
+        <input type="number" id="addAmt" value="0" min="0" step="1000" class="hpre">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Additions for # years</label>
+      <input type="number" id="addYears" value="0" min="0" max="40">
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="field">
+      <label>Simulation horizon (years)</label>
+      <div class="toggle" id="yearsToggle">
+        <button type="button" onclick="setSimYears(20,this)">20 yrs</button>
+        <button class="act" type="button" onclick="setSimYears(30,this)">30 yrs</button>
+        <button type="button" onclick="setSimYears(40,this)">40 yrs</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>S&amp;P 500 return window</label>
+      <div class="rs-wrap">
+        <div class="rs-track-row">
+          <div class="rs-track" id="rsTrack">
+            <div class="rs-fill"  id="rsFill"></div>
+            <div class="rs-thumb" id="rsL"></div>
+            <div class="rs-thumb" id="rsR"></div>
+          </div>
+        </div>
+        <div class="rs-ticks" id="rsTicks"></div>
+        <div class="rs-info"  id="rsInfo"></div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="field">
+      <label>Sampling method</label>
+      <div class="toggle" id="samplingToggle">
+        <button type="button" onclick="setSampling('noreplace',this)">No replace</button>
+        <button type="button" class="act" onclick="setSampling('bootstrap',this)">Bootstrap</button>
+        <button type="button" onclick="setSampling('block',this)">Block</button>
+      </div>
+      <div class="samp-desc" id="sampDesc">Bootstrap: years drawn independently with replacement — allows repeated years, fatter tails.</div>
+    </div>
+
+    <div class="field hidden" id="blockSizeField">
+      <label>Block size (years)</label>
+      <div class="toggle" id="blockToggle">
+        <button type="button" onclick="setBlockSize(3,this)">3 yrs</button>
+        <button type="button" class="act" onclick="setBlockSize(5,this)">5 yrs</button>
+        <button type="button" onclick="setBlockSize(7,this)">7 yrs</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Number of simulations</label>
+      <div class="toggle" id="runsToggle">
+        <button class="act" type="button" onclick="setRuns(1000, this)">1,000</button>
+        <button type="button" onclick="setRuns(3000, this)">3,000</button>
+        <button type="button" onclick="setRuns(5000, this)">5,000</button>
+      </div>
+    </div>
+    <input type="hidden" id="numRuns" value="1000">
+
+    <button type="button" class="run-btn" id="runBtn" onclick="runMC()">▶  Run Simulation</button>
+
+    <div class="progress" id="progEl">
+      <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+      <div class="prog-label" id="progLabel">Initializing…</div>
+    </div>
+
+  </div>
+  <div class="sb-footer">
+    <div class="info-pill">
+      <span id="infoPill">Each run draws 30 unique years from actual S&amp;P 500 total returns (1954–2023) without replacement.</span>
+      P10 = only 10% of outcomes are worse. P90 = only 10% are better.
+    </div>
+  </div>
+</aside>
+
+<!-- ════ MAIN ════ -->
+<main class="main">
+
+  <div class="main-header">
+    <h2>Portfolio Into The Future</h2>
+    <p class="byline">A Probabilistic Outlook by Praveen Ramachandra</p>
+    <p id="pageSub">Configure inputs on the left and click Run Simulation.</p>
+  </div>
+
+  <div id="results" class="hidden">
+
+    <!-- Milestone cards -->
+    <div class="m-grid">
+      <div class="m-card p10"><div class="tag">P10 — pessimistic</div><div class="val" id="mc10">—</div><div class="sub" id="ms10"></div></div>
+      <div class="m-card p25"><div class="tag">P25</div><div class="val" id="mc25">—</div><div class="sub" id="ms25"></div></div>
+      <div class="m-card p50"><div class="tag">P50 — median</div><div class="val" id="mc50">—</div><div class="sub" id="ms50"></div></div>
+      <div class="m-card p90"><div class="tag">P90 — optimistic</div><div class="val" id="mc90">—</div><div class="sub" id="ms90"></div></div>
+    </div>
+
+    <!-- Fan chart + Histogram -->
+    <div class="chart-row">
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-title" id="fanTitle">Percentile bands — 30-year projection</span>
+          <span class="card-sub" id="fanSub"></span>
+        </div>
+        <div class="legend" id="fanLegend"></div>
+        <div class="chart-wrap" style="height:220px"><canvas id="fanChart" role="img" aria-label="Fan chart of portfolio value percentile bands over 30 years"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-title" id="histTitle">Year-30 distribution</span>
+          <span class="card-sub">frequency of final values</span>
+        </div>
+        <div class="chart-wrap" style="height:240px"><canvas id="histChart" role="img" aria-label="Histogram of year-30 portfolio values across all simulations"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Heat map -->
+    <div class="heatmap-card">
+      <div class="card-hdr">
+        <span class="card-title">Outcome density heat map — portfolio value over time</span>
+        <span class="card-sub">color intensity = concentration of simulation outcomes</span>
+      </div>
+      <div class="hm-canvas-wrap">
+        <canvas id="heatCanvas" role="img" aria-label="Heat map showing density of portfolio values across all simulation years"></canvas>
+      </div>
+      <div class="hm-legend-row">
+        <div class="hm-scale-wrap">
+          <span>Low density</span>
+          <canvas id="scaleLegend" width="140" height="10"></canvas>
+          <span>High density</span>
+        </div>
+        <div class="hm-overlay-legend">
+          <div class="hm-leg-item"><div class="hm-leg-dash" style="border-color:#D97706;border-top-style:dashed"></div> P25</div>
+          <div class="hm-leg-item"><div class="hm-leg-dash" style="border-color:#FACC15;border-top-width:2.5px"></div> P50 median</div>
+          <div class="hm-leg-item"><div class="hm-leg-dash" style="border-color:#2563EB;border-top-style:dashed"></div> P75</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Percentile table -->
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Percentile breakdown at each milestone</span></div>
+      <table class="pt-table">
+        <thead>
+          <tr id="ptHead">
+            <th>Percentile</th>
+            <th id="thMs0">Year 10</th>
+            <th id="thMs1">Year 20</th>
+            <th id="thMs2">Year 30</th>
+            <th id="thTotal">Total withdrawn (yr 30)</th>
+            <th>Annual withdrawal — min / avg / max</th>
+          </tr>
+        </thead>
+        <tbody id="ptBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Depletion risk -->
+    <div class="card" id="depCard">
+      <div class="card-hdr">
+        <span class="card-title">Depletion risk — portfolio value by percentile over time</span>
+        <span class="card-sub">P25 / P50 / P75 / P90 · dashed line = $0 depletion threshold</span>
+      </div>
+      <div class="dep-chart-wrap">
+        <canvas id="depChart" role="img" aria-label="Line chart showing portfolio value percentiles over time with depletion threshold"></canvas>
+      </div>
+      <div class="dep-stats-row" id="depStats"></div>
+    </div>
+
+    <p class="foot-note" id="footNote"></p>
+
+    <p class="citation-note">
+      <strong>Data source:</strong> S&amp;P 500 annual <em>total return</em> (price appreciation + dividends reinvested), 1954–2023.
+      Primary source: <a href="http://www.econ.yale.edu/~shiller/data.htm" target="_blank" rel="noopener">Robert Shiller / Yale</a>
+      long-run U.S. equity dataset; cross-referenced against Standard &amp; Poor's official annual releases and
+      <a href="https://www.macrotrends.net/2526/sp-500-historical-annual-returns" target="_blank" rel="noopener">Macrotrends</a>.
+      Returns are <em>nominal</em>. Withdrawals and additions are adjusted for inflation each year (configurable, default 3%). Simulation does not account for fund fees or taxes.
+      Past returns do not guarantee future performance.
+    </p>
+
+  </div><!-- /results -->
+  </div><!-- /results -->
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js" crossorigin="anonymous"></script>
+<script>
+/* ═══════════════════════════════════════
+   DATA
+═══════════════════════════════════════ */
+const SP500 = [
+  /* 1954–1973 (added to extend pool to 70 years) */
+  {y:1954,r:52.62},{y:1955,r:31.56},{y:1956,r:6.56},{y:1957,r:-10.78},
+  {y:1958,r:43.36},{y:1959,r:11.96},{y:1960,r:0.47},{y:1961,r:26.89},
+  {y:1962,r:-8.73},{y:1963,r:22.80},{y:1964,r:16.48},{y:1965,r:12.45},
+  {y:1966,r:-10.06},{y:1967,r:23.98},{y:1968,r:11.06},{y:1969,r:-8.50},
+  {y:1970,r:4.01},{y:1971,r:14.31},{y:1972,r:18.98},{y:1973,r:-14.66},
+  /* 1974–2023 */
+  {y:1974,r:-26.47},{y:1975,r:37.20},{y:1976,r:23.84},{y:1977,r:-7.18},
+  {y:1978,r:6.56},{y:1979,r:18.44},{y:1980,r:32.42},{y:1981,r:-4.91},
+  {y:1982,r:21.41},{y:1983,r:22.51},{y:1984,r:6.27},{y:1985,r:32.16},
+  {y:1986,r:18.47},{y:1987,r:5.23},{y:1988,r:16.81},{y:1989,r:31.49},
+  {y:1990,r:-3.10},{y:1991,r:30.47},{y:1992,r:7.62},{y:1993,r:10.08},
+  {y:1994,r:1.32},{y:1995,r:37.58},{y:1996,r:22.96},{y:1997,r:33.36},
+  {y:1998,r:28.58},{y:1999,r:21.04},{y:2000,r:-9.10},{y:2001,r:-11.89},
+  {y:2002,r:-22.10},{y:2003,r:28.68},{y:2004,r:10.88},{y:2005,r:4.91},
+  {y:2006,r:15.79},{y:2007,r:5.49},{y:2008,r:-37.00},{y:2009,r:26.46},
+  {y:2010,r:15.06},{y:2011,r:2.11},{y:2012,r:16.00},{y:2013,r:32.39},
+  {y:2014,r:13.69},{y:2015,r:1.38},{y:2016,r:11.96},{y:2017,r:21.83},
+  {y:2018,r:-4.38},{y:2019,r:31.49},{y:2020,r:18.40},{y:2021,r:28.71},
+  {y:2022,r:-18.11},{y:2023,r:26.29}
+];
+
+/* ═══════════════════════════════════════
+   STATE
+═══════════════════════════════════════ */
+let wdMode = 'fixed';
+let samplingMethod = 'bootstrap';
+let blockSize = 5;
+
+let simYears  = 30;
+let poolStart = 1954, poolEnd = 2023;
+const MIN_YEAR = 1954, MAX_YEAR = 2023;
+
+function getMilestones(yrs) {
+  if (yrs === 20) return [10, 15, 20];
+  if (yrs === 40) return [10, 20, 40];
+  return [10, 20, 30];
+}
+
+/* ─── Years toggle ─── */
+function setSimYears(n, btn) {
+  simYears = n;
+  document.querySelectorAll('#yearsToggle button').forEach(b => b.classList.remove('act'));
+  btn.classList.add('act');
+  /* enforce minimum pool window */
+  if (poolEnd - poolStart + 1 < n) {
+    poolEnd = Math.min(MAX_YEAR, poolStart + n - 1);
+    if (poolEnd - poolStart + 1 < n) poolStart = MAX_YEAR - n + 1;
+  }
+  /* sync wdYear input: update max attribute and clamp current value */
+  const wdYearInput = document.getElementById('wdYear');
+  wdYearInput.max = n;
+  if (parseInt(wdYearInput.value) > n) wdYearInput.value = n;
+  updateSlider();
+}
+
+
+/* ─── Range slider ─── */
+function yearToPct(y) { return (y - MIN_YEAR) / (MAX_YEAR - MIN_YEAR) * 100; }
+function pctToYear(p) { return Math.round(MIN_YEAR + p / 100 * (MAX_YEAR - MIN_YEAR)); }
+
+function updateSlider() {
+  const lp = yearToPct(poolStart), rp = yearToPct(poolEnd);
+  document.getElementById('rsL').style.left    = lp + '%';
+  document.getElementById('rsR').style.left    = rp + '%';
+  document.getElementById('rsFill').style.left  = lp + '%';
+  document.getElementById('rsFill').style.width = (rp - lp) + '%';
+  const count = poolEnd - poolStart + 1;
+  const info  = document.getElementById('rsInfo');
+  info.textContent = poolStart + ' – ' + poolEnd + '  (' + count + ' years in pool)';
+  info.className   = 'rs-info' + (count < simYears ? ' rs-warn' : '');
+  /* update info pill */
+  const pill = document.getElementById('infoPill');
+  if (pill) {
+    const sm = samplingMethod === 'noreplace' ? 'without replacement'
+             : samplingMethod === 'block'     ? 'via block bootstrap (block=' + blockSize + 'yr)'
+             :                                  'via bootstrap (with replacement)';
+    pill.textContent = 'Each run draws ' + simYears + ' years from S&P 500 returns (' +
+      poolStart + '–' + poolEnd + ') ' + sm + '.';
+  }
+}
+
+function initSlider() {
+  const track = document.getElementById('rsTrack');
+  const ticks = document.getElementById('rsTicks');
+
+  /* draw decade ticks */
+  [1960,1970,1980,1990,2000,2010,2020].forEach(y => {
+    const t = document.createElement('span');
+    t.className = 'rs-tick';
+    t.style.left = yearToPct(y) + '%';
+    t.textContent = y;
+    ticks.appendChild(t);
+  });
+
+  let drag = null, startX = 0, startL = 0, startR = 0;
+
+  function getX(e) { return e.touches ? e.touches[0].clientX : e.clientX; }
+
+  function onDown(e, which) {
+    drag = which; startX = getX(e);
+    startL = poolStart; startR = poolEnd;
+    e.preventDefault(); e.stopPropagation();
+  }
+
+  function onMove(e) {
+    if (!drag) return;
+    const rect = track.getBoundingClientRect();
+    const dy   = Math.round((getX(e) - startX) / rect.width * (MAX_YEAR - MIN_YEAR));
+    const minGap = simYears - 1;
+    if (drag === 'L') {
+      poolStart = Math.max(MIN_YEAR, Math.min(startL + dy, poolEnd - minGap));
+    } else if (drag === 'R') {
+      poolEnd   = Math.min(MAX_YEAR, Math.max(startR + dy, poolStart + minGap));
+    } else {                          /* fill: pan whole window */
+      const w = startR - startL;
+      let ns = startL + dy, ne = ns + w;
+      if (ns < MIN_YEAR) { ns = MIN_YEAR; ne = MIN_YEAR + w; }
+      if (ne > MAX_YEAR) { ne = MAX_YEAR; ns = MAX_YEAR - w; }
+      poolStart = ns; poolEnd = ne;
+    }
+    updateSlider();
+    if (e.cancelable) e.preventDefault();
+  }
+
+  function onUp() { drag = null; }
+
+  document.getElementById('rsL').addEventListener('mousedown',  e => onDown(e,'L'));
+  document.getElementById('rsR').addEventListener('mousedown',  e => onDown(e,'R'));
+  document.getElementById('rsFill').addEventListener('mousedown', e => onDown(e,'F'));
+  document.getElementById('rsL').addEventListener('touchstart', e => onDown(e,'L'), {passive:false});
+  document.getElementById('rsR').addEventListener('touchstart', e => onDown(e,'R'), {passive:false});
+  document.getElementById('rsFill').addEventListener('touchstart', e => onDown(e,'F'), {passive:false});
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('touchmove', onMove, {passive:false});
+  document.addEventListener('mouseup',  onUp);
+  document.addEventListener('touchend', onUp);
+
+  updateSlider();
+}
+
+
+/* ═══════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════ */
+function shuffle(a) {
+  const b = [...a];
+  for (let i = b.length - 1; i > 0; i--) {
+    const j = 0 | (Math.random() * (i + 1));
+    [b[i], b[j]] = [b[j], b[i]];
+  }
+  return b;
+}
+
+function pctile(sorted, p) {
+  const idx = Math.min(Math.floor(p / 100 * sorted.length), sorted.length - 1);
+  return sorted[idx];
+}
+
+function fmtM(n) {
+  if (n <= 0) return 'Depleted';
+  if (n >= 1e6) return '$' + (n / 1e6).toFixed(2) + 'M';
+  if (n >= 1e3) return '$' + (n / 1e3).toFixed(0) + 'K';
+  return '$' + Math.round(n).toLocaleString();
+}
+function fmtFull(n) {
+  /* Portfolio value — 0 means depleted */
+  if (n <= 0) return 'Depleted';
+  return '$' + Math.round(n).toLocaleString();
+}
+function fmtMoney(n) {
+  /* Generic dollar amount — 0 is $0, not "Depleted" */
+  if (n == null || isNaN(n)) return '—';
+  if (n <= 0) return '$0';
+  return '$' + Math.round(n).toLocaleString();
+}
+function fmtPct(n) { return n.toFixed(1) + '%'; }
+
+/* ═══════════════════════════════════════
+   HEAT MAP COLOR SCALE
+   Cool (sparse) → Warm (dense)
+═══════════════════════════════════════ */
+function heatColor(t, alpha) {
+  /* t: 0–1 normalized density. Returns rgb string. */
+  if (t <= 0) return 'rgba(0,0,0,0)';
+  const stops = [
+    [0,    [215, 237, 226]],
+    [0.12, [93,  202, 165]],
+    [0.30, [29,  158, 117]],
+    [0.52, [8,   80,  65]],
+    [0.72, [239, 159, 39]],
+    [0.88, [220, 100, 20]],
+    [1.0,  [180, 30,  20]],
+  ];
+  let i = 0;
+  while (i < stops.length - 2 && t > stops[i + 1][0]) i++;
+  const [ta, ca] = stops[i];
+  const [tb, cb] = stops[i + 1];
+  const f = Math.max(0, Math.min(1, (t - ta) / (tb - ta)));
+  const r = Math.round(ca[0] + (cb[0] - ca[0]) * f);
+  const g = Math.round(ca[1] + (cb[1] - ca[1]) * f);
+  const b = Math.round(ca[2] + (cb[2] - ca[2]) * f);
+  return alpha !== undefined ? `rgba(${r},${g},${b},${alpha})` : `rgb(${r},${g},${b})`;
+}
+
+function drawScaleLegend() {
+  const c = document.getElementById('scaleLegend');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  for (let i = 0; i < W; i++) {
+    ctx.fillStyle = heatColor(i / W);
+    ctx.fillRect(i, 0, 1, H);
+  }
+}
+
+
+/* ─── Sampling method ─── */
+const SAMP_DESC = {
+  noreplace: 'No replacement: each historical year used at most once per simulation. Compresses tail risk — a known limitation.',
+  bootstrap:  'Bootstrap: years drawn independently with replacement. Allows repeated crash years — produces realistic fat tails.',
+  block:      'Block bootstrap: consecutive multi-year blocks drawn with replacement. Preserves autocorrelation (crashes tend to cluster).'
+};
+
+function setSampling(method, btn) {
+  samplingMethod = method;
+  document.querySelectorAll('#samplingToggle button').forEach(b => b.classList.remove('act'));
+  btn.classList.add('act');
+  document.getElementById('sampDesc').textContent = SAMP_DESC[method];
+  document.getElementById('blockSizeField').classList.toggle('hidden', method !== 'block');
+  updateSlider();  /* refresh info pill */
+}
+
+function setBlockSize(n, btn) {
+  blockSize = n;
+  document.querySelectorAll('#blockToggle button').forEach(b => b.classList.remove('act'));
+  btn.classList.add('act');
+}
+
+/* Draw YEARS returns from pool according to the current sampling method.
+   noreplace : shuffle & slice — no year repeats, caps tail risk
+   bootstrap : i.i.d. with replacement — fat tails, years can repeat
+   block     : non-circular moving block bootstrap — preserves autocorrelation */
+function getPool(pool70, YEARS, method, blkSz) {
+  const n = pool70.length;
+  if (method === 'noreplace') {
+    return shuffle(pool70).slice(0, YEARS);
+  }
+  if (method === 'bootstrap') {
+    return Array.from({ length: YEARS }, () => pool70[0 | Math.random() * n]);
+  }
+  /* Block bootstrap (non-circular moving block) */
+  const maxStart = n - blkSz;
+  if (maxStart < 0) return Array.from({ length: YEARS }, () => pool70[0 | Math.random() * n]);
+  const result = [];
+  while (result.length < YEARS) {
+    const start = 0 | Math.random() * (maxStart + 1);
+    for (let i = 0; i < blkSz && result.length < YEARS; i++) {
+      result.push(pool70[start + i]);
+    }
+  }
+  return result;
+}
+
+/* ═══════════════════════════════════════
+   MODE TOGGLE
+═══════════════════════════════════════ */
+function setMode(m) {
+  wdMode = m;
+  document.getElementById('btnFixed').className = m === 'fixed' ? 'act' : '';
+  document.getElementById('btnPct').className   = m === 'pct'   ? 'act' : '';
+  const inp = document.getElementById('wdAmt');
+  if (m === 'fixed') {
+    document.getElementById('wdPre').classList.remove('hidden');
+    document.getElementById('wdSuf').classList.add('hidden');
+    inp.className = 'hpre'; inp.step = 5000;
+    if (parseFloat(inp.value) <= 100) inp.value = 80000;
+    document.getElementById('wdLabel').textContent = 'Annual withdrawal';
+  } else {
+    document.getElementById('wdPre').classList.add('hidden');
+    document.getElementById('wdSuf').classList.remove('hidden');
+    inp.className = 'hsuf'; inp.step = 0.5;
+    if (parseFloat(inp.value) > 100) inp.value = 4;
+    document.getElementById('wdLabel').textContent = 'Withdrawal rate';
+  }
+}
+
+/* ═══════════════════════════════════════
+   MAIN SIMULATION
+═══════════════════════════════════════ */
+function runMC() {
+  const N            = Math.min(5000, Math.max(100, parseInt(document.getElementById('numRuns').value)   || 1000));
+  const start        = Math.max(1000, parseFloat(document.getElementById('startVal').value)              || 2000000);
+  const capturedMode = wdMode;   /* freeze at click-time — mid-run toggle changes must not affect this run */
+  const rawAmt       = parseFloat(document.getElementById('wdAmt').value);
+  const wdAmt        = Math.max(0, isNaN(rawAmt) ? (capturedMode === 'fixed' ? 80000 : 4) : rawAmt);
+  const YEARS   = simYears;
+  const wdYear  = Math.min(YEARS, Math.max(1, parseInt(document.getElementById('wdYear').value) || 5));
+  document.getElementById('wdYear').max = YEARS;
+  const MS      = getMilestones(YEARS);
+  const rawInf        = parseFloat(document.getElementById('inflationRate').value);
+  const capturedInflation = Math.max(0, isNaN(rawInf) ? 0.03 : rawInf / 100);
+  const capturedAddAmt    = Math.max(0, parseFloat(document.getElementById('addAmt').value)   || 0);
+  const capturedAddYrs = Math.max(0, Math.min(YEARS, parseInt(document.getElementById('addYears').value) || 0));
+
+  /* Build filtered pool and validate */
+  const pool70      = SP500.filter(d => d.y >= poolStart && d.y <= poolEnd);
+  const capturedSampling = samplingMethod;   /* freeze alongside wdMode */
+  const capturedBlock    = blockSize;
+  const minPool = capturedSampling === 'noreplace' ? YEARS : capturedSampling === 'block' ? capturedBlock : 2;
+  if (pool70.length < minPool) {
+    alert('Pool too small: ' + pool70.length + ' years available but at least ' + minPool + ' needed for ' + capturedSampling + ' sampling.\nExpand the return window.');
+    return;
+  }
+
+  document.getElementById('runBtn').disabled = true;
+  const progEl = document.getElementById('progEl');
+  progEl.className = 'progress show';
+  document.getElementById('results').classList.add('hidden');
+  document.getElementById('pageSub').textContent = 'Running ' + N.toLocaleString() + ' simulations…';
+
+  setTimeout(() => {
+    const yearVals   = Array.from({ length: YEARS }, () => []);  /* marginal distributions for charts */
+    const simSummary = [];  /* [vMs0, vMs1, vMs2, cumWd, annMin, annAvg, annMax] */
+    let depCounts = [0, 0, 0];
+    const CHUNK = 250;
+    let done = 0;
+
+    function step() {
+      const end = Math.min(done + CHUNK, N);
+      for (let s = done; s < end; s++) {
+        const pool = getPool(pool70, YEARS, capturedSampling, capturedBlock);
+        let v = start, cumWd = 0, depYear = 0;
+        let annWdMin = Infinity, annWdMax = 0, annWdSum = 0, annWdCnt = 0;
+        let retProd0 = 1, retProd1 = 1, retProd2 = 1;
+        for (let y = 0; y < YEARS; y++) {
+          const factor = 1 + pool[y].r / 100;
+          if (y + 1 <= MS[0]) retProd0 *= factor;
+          if (y + 1 <= MS[1]) retProd1 *= factor;
+          retProd2 *= factor;
+
+          /* 1. Apply market return */
+          v *= factor;
+
+          /* 2. Annual addition (end-of-year) — grows with inflation */
+          if (capturedAddYrs > 0 && y + 1 <= capturedAddYrs) {
+            v += capturedAddAmt * Math.pow(1 + capturedInflation, y);
+          }
+
+          /* 3. Withdrawal — fixed amount grows with inflation each year;
+                % mode has a $5,000 floor (withdraw all if below) */
+          if (y + 1 >= wdYear) {
+            let wd = 0;
+            if (capturedMode === 'fixed') {
+              const inflatedWd = wdAmt * Math.pow(1 + capturedInflation, y + 1 - wdYear);
+              wd = Math.min(inflatedWd, Math.max(0, v));
+            } else {
+              const pctWd = v * Math.min(wdAmt, 100) / 100;
+              wd = (pctWd < 5000 && v > 0) ? v   /* $5k floor: withdraw all */
+                 : Math.max(0, pctWd);
+            }
+            v -= wd; cumWd += wd;
+            if (wd > 0) {
+              if (wd < annWdMin) annWdMin = wd;
+              if (wd > annWdMax) annWdMax = wd;
+              annWdSum += wd; annWdCnt++;
+            }
+          }
+
+          /* 4. Clamp + record first depletion year */
+          v = Math.max(0, v);
+          if (v <= 0 && depYear === 0) depYear = y + 1;
+          yearVals[y].push(v);
+        }
+        /* store path summary — all values from the same simulation */
+        simSummary.push([
+          yearVals[MS[0]-1][s],               /* [0] vMs0 */
+          yearVals[MS[1]-1][s],               /* [1] vMs1 */
+          yearVals[MS[2]-1][s],               /* [2] vMs2 = final year */
+          cumWd,                              /* [3] */
+          annWdCnt > 0 ? annWdMin : 0,        /* [4] annMin */
+          annWdCnt > 0 ? annWdSum / annWdCnt : 0, /* [5] annAvg */
+          annWdMax,                           /* [6] annMax */
+          (Math.pow(retProd0, 1 / MS[0]) - 1) * 100,  /* [7] CAGR % to milestone 0 */
+          (Math.pow(retProd1, 1 / MS[1]) - 1) * 100,  /* [8] CAGR % to milestone 1 */
+          (Math.pow(retProd2, 1 / MS[2]) - 1) * 100,  /* [9] CAGR % to milestone 2 */
+          depYear                                          /* [10] year portfolio first hit 0 (0=never) */
+        ]);
+        if (yearVals[MS[0]-1][s] <= 0) depCounts[0]++;
+        if (yearVals[MS[1]-1][s] <= 0) depCounts[1]++;
+        if (yearVals[MS[2]-1][s] <= 0) depCounts[2]++;
+      }
+      done = end;
+      const pct = Math.round(done / N * 100);
+      document.getElementById('progFill').style.width  = pct + '%';
+      document.getElementById('progLabel').textContent = done.toLocaleString() + ' / ' + N.toLocaleString() + ' simulations';
+
+      if (done < N) { requestAnimationFrame(step); }
+      else { finalize(yearVals, simSummary, MS, depCounts, N, start, wdAmt, wdYear, YEARS, capturedMode, capturedSampling, capturedBlock, capturedAddAmt, capturedAddYrs, capturedInflation); }
+    }
+    step();
+  }, 20);
+}
+
+/* ═══════════════════════════════════════
+   RENDER RESULTS
+═══════════════════════════════════════ */
+function finalize(yearVals, simSummary, MS, depCounts, N, start, wdAmt, wdYear, YEARS, capturedMode, capturedSampling, capturedBlock, capturedAddAmt, capturedAddYrs, capturedInflation) {
+  yearVals.forEach(a => a.sort((x, y) => x - y));
+
+  /* Extract per-simulation distributions and sort each independently.
+     Marginal percentiles → every column is monotonic across rows (P10 ≤ P25 ≤ … ≤ P90).
+     min ≤ avg ≤ max is still preserved within each row by stochastic ordering:
+     since annMin_s ≤ annAvg_s ≤ annMax_s holds for every individual simulation s,
+     the k-th smallest of each sorted array maintains the same inequality. */
+  const allCumWd  = simSummary.map(r => r[3]).sort((a, b) => a - b);
+  const allAnnMin = simSummary.map(r => r[4]).sort((a, b) => a - b);
+  const allAnnAvg = simSummary.map(r => r[5]).sort((a, b) => a - b);
+  const allAnnMax = simSummary.map(r => r[6]).sort((a, b) => a - b);
+  const allRet0   = simSummary.map(r => r[7]).sort((a, b) => a - b);
+  const allRet1   = simSummary.map(r => r[8]).sort((a, b) => a - b);
+  const allRet2   = simSummary.map(r => r[9]).sort((a, b) => a - b);
+
+  const PS = [10, 25, 50, 75, 90];
+
+  /* Marginal year-by-year series — used by fan chart, heatmap, milestone cards */
+  const series = {};
+  PS.forEach(p => { series[p] = yearVals.map(a => Math.max(0, Math.round(pctile(a, p)))); });
+
+  /* Marginal table rows — each cell independently sorted, all monotonic */
+  const tableRows = {};
+  PS.forEach(p => {
+    tableRows[p] = {
+      v0:     Math.round(pctile(yearVals[MS[0] - 1], p)),
+      v1:     Math.round(pctile(yearVals[MS[1] - 1], p)),
+      v2:     Math.round(pctile(yearVals[MS[2] - 1], p)),
+      cumWd:  Math.round(pctile(allCumWd,  p)),
+      annMin: Math.round(pctile(allAnnMin, p)),
+      annAvg: Math.round(pctile(allAnnAvg, p)),
+      annMax: Math.round(pctile(allAnnMax, p)),
+      ret0:   +pctile(allRet0, p).toFixed(2),  /* avg S&P return % to milestone 0 */
+      ret1:   +pctile(allRet1, p).toFixed(2),  /* avg S&P return % to milestone 1 */
+      ret2:   +pctile(allRet2, p).toFixed(2)   /* avg S&P return % to milestone 2 */
+    };
+  });
+
+
+  /* Each render call is isolated — a failure in one must not block the others
+     or prevent results from being shown. capturedMode is used throughout to
+     avoid mid-run toggle changes corrupting the display. */
+
+  /* Depletion years for each percentile's representative simulation.
+     Primary sort: final-year value ascending (higher = better).
+     Secondary sort: when final values tie at 0 (all depleted), earlier depletion
+     year = worse outcome = lower rank — ensures P10 depYear ≤ P25 depYear. */
+  simSummary.sort((a, b) => {
+    if (a[2] !== b[2]) return a[2] - b[2];        /* primary:   final value */
+    const da = a[10], db = b[10];
+    if (da > 0 && db > 0) return da - db;          /* secondary: earlier depletion = worse */
+    if (da > 0) return -1;                         /* depleted ranks below non-depleted */
+    if (db > 0) return  1;
+    return 0;
+  });
+  const depYears = {};
+  [10, 25, 50, 90].forEach(p => {
+    const idx = Math.min(Math.floor(p / 100 * simSummary.length), simSummary.length - 1);
+    depYears[p] = simSummary[idx][10];
+  });
+
+  try { renderMilestoneCards(series, start, YEARS, depYears); } catch(e) { console.error('Milestone cards:', e); }
+  try { renderTable(tableRows, MS, YEARS, capturedMode); }     catch(e) { console.error('Table:', e); }
+  try { renderDepletion(depCounts, MS, N, capturedMode, series, YEARS); } catch(e) { console.error('Depletion:', e); }
+
+  const infNote  = capturedInflation > 0
+    ? ` Inflation: ${(capturedInflation*100).toFixed(1)}% (applied to withdrawals${capturedAddAmt>0?' & additions':''}).`
+    : '';
+  const addNote = capturedAddAmt > 0 && capturedAddYrs > 0
+    ? ` Additions: $${Math.round(capturedAddAmt).toLocaleString()}/yr for ${capturedAddYrs} yr(s).`
+    : '';
+  const modeNote = capturedMode === 'fixed'
+    ? `Fixed withdrawal of $${Math.round(wdAmt).toLocaleString()}/yr starting year ${wdYear}.`
+    : `${wdAmt.toFixed(1)}% of portfolio balance withdrawn annually starting year ${wdYear}.`;
+  document.getElementById('footNote').textContent =
+    `${N.toLocaleString()} Monte Carlo simulations · ${YEARS} years per run · pool ${poolStart}–${poolEnd} (${poolEnd-poolStart+1} yrs) · sampling: ${capturedSampling==='noreplace'?'without replacement':capturedSampling==='block'?'block bootstrap (block='+capturedBlock+'yr)':'bootstrap (with replacement)'}. ${modeNote}${addNote}${infNote} Results are illustrative; past returns do not guarantee future performance.`;
+  document.getElementById('pageSub').textContent =
+    `${N.toLocaleString()} simulations complete · P50 year-${YEARS} outcome: ${fmtM(series[50][YEARS-1])}`;
+  document.getElementById('fanSub').textContent = N.toLocaleString() + ' runs';
+  document.getElementById('fanTitle').textContent  = `Percentile bands — ${YEARS}-year projection`;
+  document.getElementById('histTitle').textContent = `Year-${YEARS} distribution`;
+
+  /* Show results first so containers have real dimensions before charts render */
+  document.getElementById('results').classList.remove('hidden');
+
+  /* setTimeout gives the browser time for a full layout pass after unhiding */
+  setTimeout(() => {
+    try { renderFanChart(series, YEARS); }      catch(e) { console.error('Fan chart error:', e); }
+    try { renderHistogram(yearVals[YEARS - 1], N, series, YEARS); } catch(e) { console.error('Histogram error:', e); }
+    try { renderHeatMap(yearVals, N, series, YEARS, start); }  catch(e) { console.error('Heat map error:', e); }
+    try { drawScaleLegend(); }                  catch(e) { console.error('Scale legend error:', e); }
+    document.getElementById('runBtn').disabled = false;
+    document.getElementById('progEl').className = 'progress';
+  }, 50);
+}
+
+/* ─── Milestone cards ─── */
+function renderMilestoneCards(series, start, YEARS, depYears) {
+  const cards = [
+    { p: 10, id: 'mc10', sub: 'ms10' },
+    { p: 25, id: 'mc25', sub: 'ms25' },
+    { p: 50, id: 'mc50', sub: 'ms50' },
+    { p: 90, id: 'mc90', sub: 'ms90' },
+  ];
+  cards.forEach(({ p, id, sub }) => {
+    const v  = series[p][YEARS - 1];
+    const dy = depYears && depYears[p] > 0 ? depYears[p] : 0;
+    const dep = v <= 0;
+    document.getElementById(id).textContent = dep
+      ? (dy > 0 ? 'Depleted yr\u00a0' + dy : 'Depleted')
+      : fmtM(v);
+    const chg = ((v - start) / start * 100);
+    document.getElementById(sub).textContent = dep
+      ? (dy > 0 ? 'Portfolio exhausted in year\u00a0' + dy : 'Portfolio exhausted')
+      : (chg >= 0 ? '+' : '') + chg.toFixed(0) + '% vs starting value';
+  });
+}
+
+/* ─── Fan chart ─── */
+function renderFanChart(series, YEARS) {
+  const canvas = document.getElementById('fanChart');
+  const existing = Chart.getChart(canvas);
+  if (existing) existing.destroy();
+  const labels = Array.from({ length: YEARS }, (_, i) => 'Yr ' + (i + 1));
+  const def = [
+    { p: 10, color: '#DC2626', dash: [4, 3], width: 1.2 },
+    { p: 25, color: '#D97706', dash: [3, 2], width: 1.2 },
+    { p: 50, color: '#1D9E75', dash: [],     width: 2.5 },
+    { p: 75, color: '#2563EB', dash: [3, 2], width: 1.2 },
+    { p: 90, color: '#7C3AED', dash: [4, 3], width: 1.2 },
+  ];
+  new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: def.map(d => ({
+        label: 'P' + d.p,
+        data: series[d.p],
+        borderColor: d.color,
+        borderWidth: d.width,
+        ...(d.dash.length ? { segment: { borderDash: () => d.dash } } : {}),
+        pointRadius: 0,
+        pointHitRadius: 10,
+        fill: false,
+        tension: 0.35,
+      }))
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          mode: 'index', intersect: false,
+          callbacks: { label: c => ' P' + def[c.datasetIndex].p + ': ' + fmtFull(c.raw) }
+        }
+      },
+      scales: {
+        x: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { color: '#9CA3AF', font: { size: 10, family: 'DM Sans' }, autoSkip: true, maxTicksLimit: 10 } },
+        y: {
+          min: 0,
+          grid: { color: 'rgba(0,0,0,0.04)' },
+          ticks: { color: '#9CA3AF', font: { size: 10, family: 'DM Sans' }, callback: v => '$' + (v >= 1e6 ? (v/1e6).toFixed(1)+'M' : (v/1e3).toFixed(0)+'K') }
+        }
+      }
+    }
+  });
+
+  const legEl = document.getElementById('fanLegend');
+  legEl.innerHTML = def.map(d =>
+    `<div class="leg">
+       <div class="leg-line ${d.dash.length ? 'dashed' : ''}" style="border-top-color:${d.color};border-top-width:${d.width}px"></div>
+       P${d.p}
+     </div>`
+  ).join('');
+}
+
+/* ─── Histogram ─── */
+function renderHistogram(yr30sorted, N, series, YEARS) {
+  const canvas = document.getElementById('histChart');
+  const existing = Chart.getChart(canvas);
+  if (existing) existing.destroy();
+  const maxV = yr30sorted[Math.floor(0.97 * yr30sorted.length)] * 1.05 || 10e6;
+  const NUM_BINS = 20;
+  const binSize = Math.ceil(maxV / NUM_BINS / 100000) * 100000 || 500000;
+  const bins  = new Array(NUM_BINS + 1).fill(0);
+  yr30sorted.forEach(v => { bins[Math.min(NUM_BINS, 0|v/binSize)]++; });
+  const labels = bins.map((_, i) => i < NUM_BINS
+    ? '$' + ((i * binSize) / 1e6).toFixed(1) + 'M'
+    : '$' + (NUM_BINS * binSize / 1e6).toFixed(1) + 'M+');
+  const p10v = series[10][YEARS-1], p50v = series[50][YEARS-1];
+  const colors = bins.map((_, i) => {
+    const mid = i * binSize + binSize / 2;
+    if (mid < p10v)  return 'rgba(220,38,38,0.65)';
+    if (mid < p50v)  return 'rgba(217,119,6,0.65)';
+    return 'rgba(29,158,117,0.65)';
+  });
+  new Chart(canvas, {
+    type: 'bar',
+    data: { labels, datasets: [{ data: bins, backgroundColor: colors, borderWidth: 0 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.raw + ' runs (' + fmtPct(c.raw / N * 100) + ')' } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#9CA3AF', font: { size: 9, family: 'DM Sans' }, maxRotation: 45, autoSkip: true, maxTicksLimit: 8 } },
+        y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { color: '#9CA3AF', font: { size: 10, family: 'DM Sans' } } }
+      }
+    }
+  });
+}
+
+/* ─── Heat map ─── */
+function renderHeatMap(yearVals, N, series, YEARS, start) {
+  const card = document.getElementById('heatCanvas').parentElement;
+  const DISP_W = card.clientWidth || 900;
+  const NUM_BUCKETS = 48;
+  const DPR = Math.min(window.devicePixelRatio || 1, 2);
+  const PAD = { top: 12, right: 24, bottom: 38, left: 72 };
+  const DISP_H = 310;
+  const plotW = DISP_W - PAD.left - PAD.right;
+  const plotH = DISP_H - PAD.top - PAD.bottom;
+
+  const canvas = document.getElementById('heatCanvas');
+  canvas.width  = DISP_W * DPR;
+  canvas.height = DISP_H * DPR;
+  canvas.style.width  = DISP_W + 'px';
+  canvas.style.height = DISP_H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(DPR, DPR);
+  ctx.clearRect(0, 0, DISP_W, DISP_H);
+
+  /* Value range: use P97 of year-30 values; guard against full-depletion edge case */
+  const yr30 = yearVals[YEARS - 1];
+  const p97raw = yr30[Math.floor(0.97 * yr30.length)] * 1.08;
+  const maxVal = Math.max(p97raw, start * 0.1, 1000);   /* never 0 */
+  const bucketSize = maxVal / NUM_BUCKETS;
+
+  /* Build density grid */
+  const grid = [];
+  let maxProb = 0;
+  for (let y = 0; y < YEARS; y++) {
+    const counts = new Array(NUM_BUCKETS).fill(0);
+    yearVals[y].forEach(v => {
+      const b = Math.min(NUM_BUCKETS - 1, 0 | (v / bucketSize));
+      if (b >= 0) counts[b]++;
+    });
+    const probs = counts.map(c => c / N);
+    probs.forEach(p => { if (p > maxProb) maxProb = p; });
+    grid.push(probs);
+  }
+
+  /* Draw cells */
+  const cellW = plotW / YEARS;
+  const cellH = plotH / NUM_BUCKETS;
+  for (let y = 0; y < YEARS; y++) {
+    for (let b = 0; b < NUM_BUCKETS; b++) {
+      const p = grid[y][b];
+      if (p === 0) continue;
+      const t = Math.pow(p / maxProb, 0.6);   /* gamma for mid-tone visibility */
+      ctx.fillStyle = heatColor(t);
+      const px = PAD.left + y * cellW;
+      const py = PAD.top  + plotH - (b + 1) * cellH;
+      ctx.fillRect(px, py, cellW + 0.5, cellH + 0.5);   /* +0.5 closes gaps */
+    }
+  }
+
+  /* ── Overlay percentile lines ── */
+  const overlays = [
+    { p: 25, color: '#D97706', width: 1.5, dash: [5, 3] },
+    { p: 50, color: '#FACC15', width: 2.5, dash: [] },
+    { p: 75, color: '#2563EB', width: 1.5, dash: [5, 3] },
+  ];
+  overlays.forEach(({ p, color, width, dash }) => {
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth   = width;
+    ctx.setLineDash(dash);
+    series[p].forEach((v, i) => {
+      const nx  = Math.min(1, v / maxVal);
+      const px  = PAD.left + (i + 0.5) * cellW;
+      const py  = PAD.top  + plotH - nx * plotH;
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    });
+    ctx.stroke();
+    ctx.setLineDash([]);
+  });
+
+  /* ── Axes ── */
+  ctx.font = '11px DM Sans, sans-serif';
+  ctx.fillStyle = '#9CA3AF';
+  ctx.textBaseline = 'top';
+  ctx.textAlign = 'center';
+  const xStep = 5;
+  for (let y = xStep - 1; y < YEARS; y += xStep) {
+    const px = PAD.left + (y + 0.5) * cellW;
+    ctx.fillText('Yr ' + (y + 1), px, PAD.top + plotH + 8);
+  }
+
+  ctx.textAlign    = 'right';
+  ctx.textBaseline = 'middle';
+  const yTicks = 5;
+  for (let i = 0; i <= yTicks; i++) {
+    const v  = (i / yTicks) * maxVal;
+    const py = PAD.top + plotH - (i / yTicks) * plotH;
+    const lbl = v >= 1e6 ? '$' + (v / 1e6).toFixed(1) + 'M' : '$' + (v / 1e3).toFixed(0) + 'K';
+    ctx.fillText(lbl, PAD.left - 6, py);
+    /* faint grid line */
+    ctx.strokeStyle = 'rgba(0,0,0,0.06)';
+    ctx.lineWidth   = 0.5;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(PAD.left, py);
+    ctx.lineTo(PAD.left + plotW, py);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  /* Border */
+  ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+  ctx.lineWidth   = 0.5;
+  ctx.strokeRect(PAD.left, PAD.top, plotW, plotH);
+}
+
+/* ─── Percentile table ─── */
+function renderTable(tableRows, MS, YEARS, wdMode) {
+  /* Update column headers dynamically */
+  document.getElementById('thMs0').textContent  = 'Year ' + MS[0];
+  document.getElementById('thMs1').textContent  = 'Year ' + MS[1];
+  document.getElementById('thMs2').textContent  = 'Year ' + MS[2];
+  document.getElementById('thTotal').textContent = 'Total withdrawn (yr ' + YEARS + ')';
+
+  const rowDef = [
+    { p: 90, label: 'P90 — optimistic',  cls: 'cp90' },
+    { p: 75, label: 'P75',               cls: 'cp75' },
+    { p: 50, label: 'P50 — median',      cls: 'cp50' },
+    { p: 25, label: 'P25',               cls: 'cp25' },
+    { p: 10, label: 'P10 — pessimistic', cls: 'cp10' },
+  ];
+
+  function retStr(r) {
+    return `<div class="avg-ret">${r >= 0 ? '+' : ''}${r.toFixed(1)}% CAGR</div>`;
+  }
+  function milestoneCell(val, ret, cls) {
+    return `<td class="${cls}">${fmtM(val)}${retStr(ret)}</td>`;
+  }
+
+  const wdStr = r => `${fmtMoney(r.annMin)} &ndash; ${fmtMoney(r.annAvg)} &ndash; ${fmtMoney(r.annMax)}`;
+
+  document.getElementById('ptBody').innerHTML = rowDef.map(({ p, label, cls }) => {
+    const r = tableRows[p];
+    return `<tr>
+      <td>${label}</td>
+      ${milestoneCell(r.v0, r.ret0, cls)}
+      ${milestoneCell(r.v1, r.ret1, cls)}
+      ${milestoneCell(r.v2, r.ret2, cls)}
+      <td class="${cls}">${fmtMoney(r.cumWd)}</td>
+      <td class="${cls}">${wdStr(r)}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ─── Depletion ─── */
+function renderDepletion(depCounts, MS, N, mode, series, YEARS) {
+  const card = document.getElementById('depCard');
+  card.classList.remove('hidden');
+
+  /* ── Chart ── */
+  const canvas = document.getElementById('depChart');
+  const existing = Chart.getChart(canvas);
+  if (existing) existing.destroy();
+
+  const labels = Array.from({ length: YEARS }, (_, i) => 'Yr ' + (i + 1));
+  const isDark  = matchMedia('(prefers-color-scheme: dark)').matches;
+  const gridCol = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)';
+
+  const lineDefs = [
+    { p: 25, color: '#D97706', width: 1.8, dash: [3,2] },
+    { p: 50, color: '#1D9E75', width: 2.5, dash: []    },
+    { p: 75, color: '#2563EB', width: 1.8, dash: [3,2] },
+    { p: 90, color: '#7C3AED', width: 1.5, dash: [4,3] },
+  ];
+
+  new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        /* $0 depletion threshold — drawn first so it sits behind percentile lines */
+        {
+          label: '$0 threshold',
+          data: Array(YEARS).fill(0),
+          borderColor: 'rgba(220,38,38,0.55)',
+          borderWidth: 1.5,
+          segment: { borderDash: () => [6, 4] },
+          pointRadius: 0,
+          fill: false,
+          order: 10,
+        },
+        ...lineDefs.map(d => ({
+          label: 'P' + d.p,
+          data: series[d.p],
+          borderColor: d.color,
+          borderWidth: d.width,
+          ...(d.dash.length ? { segment: { borderDash: () => d.dash } } : {}),
+          pointRadius: 0,
+          fill: false,
+          tension: 0.35,
+          order: 1,
+        })),
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          labels: { color: isDark ? '#9CA3AF' : '#6B7280', font: { size: 11, family: 'DM Sans' }, boxWidth: 22, padding: 14 }
+        },
+        tooltip: {
+          mode: 'index', intersect: false,
+          callbacks: {
+            label: c => {
+              if (c.dataset.label === '$0 threshold') return null;
+              const v = c.raw;
+              return ` ${c.dataset.label}: ${v <= 0 ? 'Depleted' : fmtM(v)}`;
+            }
+          },
+          filter: item => item.dataset.label !== '$0 threshold'
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: gridCol },
+          ticks: { color: '#9CA3AF', font: { size: 10, family: 'DM Sans' }, autoSkip: true, maxTicksLimit: 10 }
+        },
+        y: {
+          min: 0,
+          grid: { color: gridCol },
+          ticks: {
+            color: '#9CA3AF', font: { size: 10, family: 'DM Sans' },
+            callback: v => '$' + (v >= 1e6 ? (v/1e6).toFixed(1)+'M' : (v/1e3).toFixed(0)+'K')
+          }
+        }
+      }
+    }
+  });
+
+  /* ── Stats strip below chart ── */
+  const statsEl = document.getElementById('depStats');
+  if (mode === 'pct') {
+    statsEl.innerHTML =
+      `<p class="dep-note">% withdrawal mode: the portfolio cannot reach $0 &#8212; each withdrawal takes a fixed fraction of the remaining balance, which shrinks toward zero asymptotically but never fully depletes.</p>`;
+  } else {
+    statsEl.innerHTML = MS.map((yr, i) => {
+      const d   = depCounts[i];
+      const pct = d / N * 100;
+      const cls = pct < 2 ? 'ok' : pct < 10 ? 'warn' : 'bad';
+      return `<div class="dep-stat-item">
+        <div class="dep-stat-label">Depleted by yr ${yr}</div>
+        <div class="dep-stat-val ${cls}">${fmtPct(pct)}</div>
+        <div class="dep-stat-count">${d.toLocaleString()} / ${N.toLocaleString()} runs</div>
+      </div>`;
+    }).join('');
+  }
+}
+
+/* ─── Runs toggle ─── */
+function setRuns(n, btn) {
+  document.getElementById('numRuns').value = n;
+  document.querySelectorAll('#runsToggle button').forEach(b => b.classList.remove('act'));
+  btn.classList.add('act');
+}
+
+
+/* ── Bootstrap ── */
+initSlider();
+</script>
+</body>
+</html>
