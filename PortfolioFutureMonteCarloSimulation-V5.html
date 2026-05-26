@@ -34,6 +34,11 @@ body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--bg); col
 .sb-header { padding: 22px 20px 16px; border-bottom: 0.5px solid rgba(255,255,255,0.07); }
 .sb-header h1 { font-size: 14px; font-weight: 600; color: #fff; letter-spacing: 0.01em; }
 .sb-header p { font-size: 11px; color: #64748B; margin-top: 3px; }
+.guide-link { display:inline-flex; align-items:center; gap:5px; margin-top:10px;
+  font-size:11px; color:#64748B; text-decoration:none;
+  padding:4px 9px; border:1px solid rgba(255,255,255,.09); border-radius:5px;
+  transition:color .14s, border-color .14s; }
+.guide-link:hover { color:#94A3B8; border-color:rgba(255,255,255,.22); }
 .sb-body { padding: 18px 20px; display: flex; flex-direction: column; gap: 16px; flex: 1; }
 .sb-footer { padding: 14px 20px; border-top: 0.5px solid rgba(255,255,255,0.07); }
 .field { display: flex; flex-direction: column; gap: 5px; }
@@ -184,6 +189,139 @@ canvas#scaleLegend { border-radius: 3px; }
                  border-top: 0.5px solid var(--border); padding-top: 8px; margin-top: 2px; }
 .citation-note a { color: var(--accent); text-decoration: none; }
 .citation-note a:hover { text-decoration: underline; }
+
+/* ═══════════════════════════════════════════════
+   GUIDE OVERLAY
+═══════════════════════════════════════════════ */
+#guideOverlay {
+  position: fixed; inset: 0; z-index: 9000;
+  display: grid; grid-template-columns: 252px 1fr;
+  background: #F8FAFC;
+  transform: translateX(100%);
+  transition: transform .28s cubic-bezier(.4,0,.2,1);
+  font-family: 'DM Sans', sans-serif;
+}
+#guideOverlay.go-open { transform: translateX(0); }
+
+/* sidebar */
+#guideOverlay .go-aside {
+  background: #0F1923; display: flex; flex-direction: column;
+  height: 100vh; overflow-y: auto; flex-shrink: 0;
+}
+#guideOverlay .go-brand { padding: 20px 18px 14px; border-bottom: 1px solid rgba(255,255,255,.07); }
+#guideOverlay .go-brand h1 { font-size: 13px; font-weight: 600; color: var(--accent); line-height: 1.4; }
+#guideOverlay .go-brand p  { font-size: 11px; color: #64748B; margin-top: 3px; }
+#guideOverlay .go-back {
+  display: flex; align-items: center; gap: 7px;
+  margin: 12px 14px 0; padding: 8px 12px;
+  background: rgba(29,158,117,.12); border: 1px solid rgba(29,158,117,.25);
+  border-radius: 7px; color: var(--accent); font-size: 12.5px; font-weight: 500;
+  cursor: pointer; text-decoration: none; transition: background .14s;
+  font-family: 'DM Sans', sans-serif;
+}
+#guideOverlay .go-back:hover { background: rgba(29,158,117,.22); }
+#guideOverlay nav { padding: 14px 0 24px; flex: 1; }
+#guideOverlay .go-nav-hdr {
+  padding: 10px 18px 2px; font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .08em; color: #475569; margin-top: 8px;
+}
+#guideOverlay nav a {
+  display: block; padding: 5px 18px; font-size: 12.5px; color: #94A3B8;
+  text-decoration: none; border-left: 2px solid transparent;
+  transition: color .12s, border-color .12s;
+}
+#guideOverlay nav a:hover { color: #CBD5E1; }
+#guideOverlay nav a.go-active { color: #fff; border-left-color: var(--accent); background: rgba(255,255,255,.04); }
+
+/* main scroll area */
+#guideOverlay .go-main {
+  overflow-y: auto; height: 100vh; padding: 44px 52px 80px;
+  max-width: 840px;
+}
+#guideOverlay h1.hero { font-size: 27px; font-weight: 700; line-height: 1.2; color: #1E293B; }
+#guideOverlay h1.hero span { color: var(--accent); }
+#guideOverlay .hero-sub { font-size: 14px; color: #64748B; margin-top: 8px; line-height: 1.65; }
+#guideOverlay h2 {
+  font-size: 19px; font-weight: 600; color: #1E293B; margin: 44px 0 13px;
+  padding-bottom: 9px; border-bottom: 1.5px solid #E2E8F0; scroll-margin-top: 20px;
+}
+#guideOverlay h3 { font-size: 15px; font-weight: 600; color: #1E293B; margin: 24px 0 7px; }
+#guideOverlay h4 {
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  color: #64748B; margin: 18px 0 5px;
+}
+#guideOverlay p { font-size: 13.5px; color: #1E293B; line-height: 1.78; margin-bottom: 12px; }
+#guideOverlay ul, #guideOverlay ol { margin: 8px 0 14px 18px; }
+#guideOverlay li { font-size: 13.5px; line-height: 1.72; color: #1E293B; margin-bottom: 4px; }
+#guideOverlay code {
+  font-family: 'DM Mono', monospace; font-size: 12px;
+  background: #EEF2FF; color: #3730A3; padding: 1px 5px; border-radius: 3px;
+}
+#guideOverlay strong { font-weight: 600; }
+#guideOverlay a { color: var(--accent); text-decoration: none; }
+#guideOverlay a:hover { text-decoration: underline; }
+#guideOverlay hr { border: none; border-top: 1px solid #E2E8F0; margin: 28px 0; }
+/* callout boxes */
+#guideOverlay .box { border-radius: 9px; padding: 13px 15px; margin: 14px 0; }
+#guideOverlay .box-tip     { background: #F0FDF4; border-left: 3px solid var(--accent); }
+#guideOverlay .box-warn    { background: #FFFBEB; border-left: 3px solid #D97706; }
+#guideOverlay .box-info    { background: #EFF6FF; border-left: 3px solid #2563EB; }
+#guideOverlay .box-caution { background: #FEF2F2; border-left: 3px solid #DC2626; }
+#guideOverlay .box-tag { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 5px; }
+#guideOverlay .box-tip .box-tag     { color: var(--accent); }
+#guideOverlay .box-warn .box-tag    { color: #D97706; }
+#guideOverlay .box-info .box-tag    { color: #2563EB; }
+#guideOverlay .box-caution .box-tag { color: #DC2626; }
+#guideOverlay .box p { margin-bottom: 0; font-size: 13px; }
+/* tables */
+#guideOverlay table { width: 100%; border-collapse: collapse; margin: 13px 0; font-size: 13px; }
+#guideOverlay th {
+  text-align: left; padding: 8px 11px; background: #F8FAFC;
+  border-bottom: 1.5px solid #E2E8F0; font-weight: 600;
+  font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: #64748B;
+}
+#guideOverlay td { padding: 8px 11px; border-bottom: 1px solid #E2E8F0; line-height: 1.5; vertical-align: top; }
+#guideOverlay tr:last-child td { border-bottom: none; }
+#guideOverlay tr:hover td { background: #F8FAFC; }
+/* badges */
+#guideOverlay .p {
+  display: inline-block; padding: 2px 8px; border-radius: 20px;
+  font-size: 11px; font-weight: 600; font-family: 'DM Mono', monospace;
+}
+#guideOverlay .p10 { background: #FEF2F2; color: var(--p10); }
+#guideOverlay .p25 { background: #FFFBEB; color: var(--p25); }
+#guideOverlay .p50 { background: #F0FDF4; color: var(--p50); }
+#guideOverlay .p75 { background: #EFF6FF; color: var(--p75); }
+#guideOverlay .p90 { background: #F5F3FF; color: var(--p90); }
+/* numbered steps */
+#guideOverlay .steps { list-style: none; padding: 0; margin: 12px 0; counter-reset: st; }
+#guideOverlay .steps li {
+  counter-increment: st; display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start;
+}
+#guideOverlay .steps li::before {
+  content: counter(st); min-width: 27px; height: 27px; background: var(--accent);
+  color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 12px; flex-shrink: 0; margin-top: 1px;
+}
+#guideOverlay .step-t strong { display: block; font-size: 13.5px; margin-bottom: 2px; }
+#guideOverlay .step-t p { margin-bottom: 0; font-size: 13px; }
+/* sampling grid */
+#guideOverlay .sg { display: grid; grid-template-columns: repeat(3,1fr); gap: 11px; margin: 13px 0; }
+#guideOverlay .sc { border: 1px solid #E2E8F0; border-radius: 9px; padding: 13px; }
+#guideOverlay .sc.rec { border-color: var(--accent); background: #F0FDF4; }
+#guideOverlay .sc h5 { font-size: 12.5px; font-weight: 600; margin-bottom: 5px; display: flex; align-items: center; gap: 7px; }
+#guideOverlay .sc p  { font-size: 12px; color: #64748B; margin-bottom: 0; line-height: 1.55; }
+#guideOverlay .badge {
+  font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  padding: 2px 6px; border-radius: 4px; background: var(--accent); color: #fff; flex-shrink: 0;
+}
+/* formula block */
+#guideOverlay .formula {
+  background: #1E293B; color: #E2E8F0; padding: 12px 15px; border-radius: 8px;
+  font-family: 'DM Mono', monospace; font-size: 12px; margin: 11px 0; line-height: 1.9; overflow-x: auto;
+}
+#guideOverlay .formula .c { color: #64748B; }
+
 </style>
 </head>
 <body>
@@ -193,6 +331,7 @@ canvas#scaleLegend { border-radius: 3px; }
   <div class="sb-header">
     <h1>Portfolio Into The Future</h1>
     <p>S&amp;P 500 historical returns · 1954–2023</p>
+    <button class="guide-link" type="button" onclick="openGuide()" aria-haspopup="dialog">&#9432; Guide &amp; explainer</button>
   </div>
   <div class="sb-body">
 
@@ -779,21 +918,22 @@ function runMC() {
           /* 1. Apply market return */
           v *= factor;
 
-          /* 2. Annual addition (end-of-year) — grows with inflation */
+          /* 2. Annual addition (end-of-year) — entered in today's dollars, constant nominal */
           if (capturedAddYrs > 0 && y + 1 <= capturedAddYrs) {
-            v += capturedAddAmt * Math.pow(1 + capturedInflation, y);
+            v += capturedAddAmt;
           }
 
-          /* 3. Withdrawal — fixed amount grows with inflation each year;
-                % mode has a $5,000 floor (withdraw all if below) */
+          /* 3. Withdrawal — entered in today's dollars, constant nominal every year.
+                Inflation is accounted for in the display by deflating portfolio values,
+                not by inflating the withdrawal amount.
+                % mode has a $5,000 nominal floor (withdraw all if below). */
           if (y + 1 >= wdYear) {
             let wd = 0;
             if (capturedMode === 'fixed') {
-              const inflatedWd = wdAmt * Math.pow(1 + capturedInflation, y + 1 - wdYear);
-              wd = Math.min(inflatedWd, Math.max(0, v));
+              wd = Math.min(wdAmt, Math.max(0, v));
             } else {
               const pctWd = v * Math.min(wdAmt, 100) / 100;
-              wd = (pctWd < 5000 && v > 0) ? v   /* $5k floor: withdraw all */
+              wd = (pctWd > 0 && pctWd < 5000 && v > 0) ? v   /* $5k floor: withdraw all when amount is trivially small */
                  : Math.max(0, pctWd);
             }
             v -= wd; cumWd += wd;
@@ -804,10 +944,13 @@ function runMC() {
             }
           }
 
-          /* 4. Clamp + record first depletion year */
+          /* 4. Clamp; record first depletion year; push REAL (today's $) value.
+                Dividing by the cumulative inflation factor converts nominal portfolio
+                value to its equivalent in today's purchasing power. */
           v = Math.max(0, v);
           if (v <= 0 && depYear === 0) depYear = y + 1;
-          yearVals[y].push(v);
+          const realDeflator = Math.pow(1 + capturedInflation, y + 1);
+          yearVals[y].push(v / realDeflator);
         }
         /* store path summary — all values from the same simulation */
         simSummary.push([
@@ -818,9 +961,9 @@ function runMC() {
           annWdCnt > 0 ? annWdMin : 0,        /* [4] annMin */
           annWdCnt > 0 ? annWdSum / annWdCnt : 0, /* [5] annAvg */
           annWdMax,                           /* [6] annMax */
-          (Math.pow(retProd0, 1 / MS[0]) - 1) * 100,  /* [7] CAGR % to milestone 0 */
-          (Math.pow(retProd1, 1 / MS[1]) - 1) * 100,  /* [8] CAGR % to milestone 1 */
-          (Math.pow(retProd2, 1 / MS[2]) - 1) * 100,  /* [9] CAGR % to milestone 2 */
+          (Math.pow(retProd0 / Math.pow(1 + capturedInflation, MS[0]), 1 / MS[0]) - 1) * 100,  /* [7] real CAGR % to milestone 0 */
+          (Math.pow(retProd1 / Math.pow(1 + capturedInflation, MS[1]), 1 / MS[1]) - 1) * 100,  /* [8] real CAGR % to milestone 1 */
+          (Math.pow(retProd2 / Math.pow(1 + capturedInflation, MS[2]), 1 / MS[2]) - 1) * 100,  /* [9] real CAGR % to milestone 2 */
           depYear                                          /* [10] year portfolio first hit 0 (0=never) */
         ]);
         if (yearVals[MS[0]-1][s] <= 0) depCounts[0]++;
@@ -909,7 +1052,7 @@ function finalize(yearVals, simSummary, MS, depCounts, N, start, wdAmt, wdYear, 
   try { renderDepletion(depCounts, MS, N, capturedMode, series, YEARS); } catch(e) { console.error('Depletion:', e); }
 
   const infNote  = capturedInflation > 0
-    ? ` Inflation: ${(capturedInflation*100).toFixed(1)}% (applied to withdrawals${capturedAddAmt>0?' & additions':''}).`
+    ? ` Inflation: ${(capturedInflation*100).toFixed(1)}% — all portfolio values shown in today\'s real dollars (÷ 1.0${(capturedInflation*100).toFixed(0)}^yr). Withdrawal $${Math.round(wdAmt).toLocaleString()} is constant nominal.`
     : '';
   const addNote = capturedAddAmt > 0 && capturedAddYrs > 0
     ? ` Additions: $${Math.round(capturedAddAmt).toLocaleString()}/yr for ${capturedAddYrs} yr(s).`
@@ -920,9 +1063,9 @@ function finalize(yearVals, simSummary, MS, depCounts, N, start, wdAmt, wdYear, 
   document.getElementById('footNote').textContent =
     `${N.toLocaleString()} Monte Carlo simulations · ${YEARS} years per run · pool ${poolStart}–${poolEnd} (${poolEnd-poolStart+1} yrs) · sampling: ${capturedSampling==='noreplace'?'without replacement':capturedSampling==='block'?'block bootstrap (block='+capturedBlock+'yr)':'bootstrap (with replacement)'}. ${modeNote}${addNote}${infNote} Results are illustrative; past returns do not guarantee future performance.`;
   document.getElementById('pageSub').textContent =
-    `${N.toLocaleString()} simulations complete · P50 year-${YEARS} outcome: ${fmtM(series[50][YEARS-1])}`;
+    `${N.toLocaleString()} simulations complete · P50 year-${YEARS} outcome: ${fmtM(series[50][YEARS-1])}${capturedInflation > 0 ? ' (today\'s $)' : ''}`;
   document.getElementById('fanSub').textContent = N.toLocaleString() + ' runs';
-  document.getElementById('fanTitle').textContent  = `Percentile bands — ${YEARS}-year projection`;
+  document.getElementById('fanTitle').textContent  = `Percentile bands — ${YEARS}-year projection${capturedInflation > 0 ? ' (today\'s dollars)' : ''}`;
   document.getElementById('histTitle').textContent = `Year-${YEARS} distribution`;
 
   /* Show results first so containers have real dimensions before charts render */
@@ -1182,7 +1325,7 @@ function renderTable(tableRows, MS, YEARS, wdMode) {
   ];
 
   function retStr(r) {
-    return `<div class="avg-ret">${r >= 0 ? '+' : ''}${r.toFixed(1)}% CAGR</div>`;
+    return `<div class="avg-ret">${r >= 0 ? '+' : ''}${r.toFixed(1)}% real CAGR</div>`;
   }
   function milestoneCell(val, ret, cls) {
     return `<td class="${cls}">${fmtM(val)}${retStr(ret)}</td>`;
@@ -1317,8 +1460,350 @@ function setRuns(n, btn) {
 }
 
 
+
+/* ─── Guide overlay ─── */
+function openGuide() {
+  const ov = document.getElementById('guideOverlay');
+  ov.classList.add('go-open');
+  document.body.style.overflow = 'hidden';
+  /* init scrollspy on first open */
+  if (!ov._spyReady) {
+    ov._spyReady = true;
+    const sections = ov.querySelectorAll('h2[id]');
+    const links    = ov.querySelectorAll('#guideNav a');
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          links.forEach(a => a.classList.remove('go-active'));
+          const a = ov.querySelector('#guideNav a[href="#' + e.target.id + '"]');
+          if (a) a.classList.add('go-active');
+        }
+      });
+    }, { root: document.getElementById('guideMain'), rootMargin: '-8% 0px -82% 0px' });
+    sections.forEach(s => obs.observe(s));
+  }
+}
+function closeGuide() {
+  document.getElementById('guideOverlay').classList.remove('go-open');
+  document.body.style.overflow = '';
+}
+/* close on Escape */
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeGuide(); });
+
 /* ── Bootstrap ── */
 initSlider();
 </script>
+
+<!-- ════ GUIDE OVERLAY ════ -->
+<div id="guideOverlay" role="dialog" aria-modal="true" aria-label="Simulator guide">
+  <aside class="go-aside">
+    <div class="go-brand">
+      <h1>Portfolio Into The Future</h1>
+      <p>Guide &amp; reference</p>
+    </div>
+    <button class="go-back" onclick="closeGuide()" aria-label="Close guide">← Back to simulator</button>
+    <nav id="guideNav">
+<div class="go-nav-hdr">Getting started</div>
+    <a href="#go-overview">What is this tool?</a>
+    <a href="#go-quickstart">Quick start</a>
+
+    <div class="go-nav-hdr">Inputs</div>
+    <a href="#go-inp-portfolio">Portfolio &amp; withdrawals</a>
+    <a href="#go-inp-inflation">Inflation &amp; real returns</a>
+    <a href="#go-inp-additions">Annual additions</a>
+    <a href="#go-inp-horizon">Horizon &amp; return window</a>
+    <a href="#go-inp-sampling">Sampling method</a>
+    <a href="#go-inp-runs">Number of simulations</a>
+
+    <div class="go-nav-hdr">Reading results</div>
+    <a href="#go-out-cards">Milestone cards</a>
+    <a href="#go-out-fan">Fan chart</a>
+    <a href="#go-out-hist">Histogram</a>
+    <a href="#go-out-heat">Heat map</a>
+    <a href="#go-out-table">Percentile table</a>
+    <a href="#go-out-depletion">Depletion risk</a>
+
+    <div class="go-nav-hdr">Key concepts</div>
+    <a href="#go-c-montecarlo">Monte Carlo simulation</a>
+    <a href="#go-c-percentiles">Percentiles</a>
+    <a href="#go-c-realterms">Real vs nominal values</a>
+    <a href="#go-c-sampling">Sampling methods</a>
+    <a href="#go-c-cagr">CAGR vs average return</a>
+    <a href="#go-c-sequence">Sequence-of-returns risk</a>
+
+    <div class="go-nav-hdr">Reference</div>
+    <a href="#go-datasource">Data source</a>
+    <a href="#go-limitations">Limitations</a>
+    <a href="#go-glossary">Glossary</a>
+    </nav>
+  </aside>
+  <div class="go-main" id="guideMain">
+<h1 class="hero">Simulator guide<br><span>Portfolio Into The Future</span></h1>
+  <p class="hero-sub">Complete reference for every input, every chart, and every number — from a 3-minute quick start to the statistical engine underneath.</p>
+
+  <!-- OVERVIEW -->
+  <h2 id="go-overview">What is this tool?</h2>
+  <p><strong>Portfolio Into The Future</strong> is a Monte Carlo retirement simulator built on 70 years of actual S&amp;P 500 total-return history (1954–2023). Instead of projecting one assumed return, it draws thousands of possible future year sequences from real market data and shows how a portfolio behaves across the full range of outcomes — from the most optimistic 10% of markets to the most pessimistic 10%.</p>
+  <p>All monetary values displayed are in <strong>today's real dollars</strong> (purchasing power), not inflated nominal amounts. Enter your numbers as you think of them now — the simulator handles the inflation adjustment automatically.</p>
+
+  <!-- QUICK START -->
+  <h2 id="go-quickstart">Quick start</h2>
+  <ol class="steps">
+    <li><div class="step-t"><strong>Set portfolio and withdrawal details</strong><p>Enter your current portfolio value, choose Fixed $ or % withdrawal mode, set your annual spending need in today's dollars, and pick when withdrawals start.</p></div></li>
+    <li><div class="step-t"><strong>Set the inflation rate (default 3%)</strong><p>This converts all displayed portfolio values into today's purchasing power. Your withdrawal stays fixed — inflation is accounted for in the display, not by inflating the withdrawal amount.</p></div></li>
+    <li><div class="step-t"><strong>Add contributions if still accumulating</strong><p>If you are still saving, enter an annual addition amount and how many years you will continue adding. Both are in today's dollars and kept constant in nominal terms.</p></div></li>
+    <li><div class="step-t"><strong>Choose Bootstrap sampling</strong><p>Bootstrap (the default) allows repeated years and produces realistic tail risk. "No replacement" artificially limits how bad things can get. Block bootstrap is best when you want multi-year crash clustering.</p></div></li>
+    <li><div class="step-t"><strong>Click Run Simulation</strong><p>Focus on the <span class="p p10">P10</span> milestone card — that is your stress-test floor. If it shows "Depleted yr N", one-in-ten market paths ran out of money by year N.</p></div></li>
+  </ol>
+
+  <!-- INPUTS: PORTFOLIO -->
+  <h2 id="go-inp-portfolio">Portfolio &amp; withdrawals</h2>
+
+  <h3>Starting portfolio value</h3>
+  <p>Your total investable portfolio today in current dollars — brokerage accounts, 401(k), IRA, Roth IRA. Do not include your primary residence. If you have pension income or Social Security, subtract the annual amount from your planned withdrawal instead of including the asset value.</p>
+
+  <h3>Withdrawal mode</h3>
+  <table>
+    <tr><th>Mode</th><th>How it works</th><th>Practical meaning</th></tr>
+    <tr>
+      <td><strong>Fixed $</strong></td>
+      <td>Withdraw the same nominal dollar amount every year. If the portfolio cannot cover the full amount, take what remains.</td>
+      <td>You plan to spend a set amount regardless of market conditions. The real value of this spending decreases slightly over time as inflation erodes the nominal amount's purchasing power — visible in the real-terms display.</td>
+    </tr>
+    <tr>
+      <td><strong>% of portfolio</strong></td>
+      <td>Withdraw a percentage of the current balance each year. The dollar amount fluctuates with portfolio performance. If the computed amount drops below $5,000, the entire remaining balance is withdrawn (depletion floor).</td>
+      <td>Spending automatically contracts in down markets and expands in up markets — resilient to depletion but variable income.</td>
+    </tr>
+  </table>
+
+  <h3>Annual withdrawal / withdrawal rate</h3>
+  <p>In Fixed $ mode: the amount you intend to spend each year, <strong>in today's dollars</strong>. This stays constant in nominal terms throughout the simulation — it does not grow with inflation. The real-terms display (see <a href="#inp-inflation">Inflation</a>) means you see this as constant purchasing power year after year.</p>
+  <p>In % mode: the percentage of the current portfolio balance to withdraw annually (e.g. 4 for 4%). The $5,000 depletion floor applies: if 4% of the balance is below $5,000, the remainder is withdrawn in full.</p>
+
+  <div class="box box-warn">
+    <div class="box-tag">The 4% rule</div>
+    <p>The classic "4% safe withdrawal rate" (Bengen 1994) used no-replacement historical simulation. This simulator uses bootstrap sampling — which generally confirms that 4% is moderately conservative for a 30-year horizon but potentially aggressive over 40 years with a 3% inflation assumption.</p>
+  </div>
+
+  <h3>Withdrawals start year</h3>
+  <p>The year in which the first withdrawal occurs. Use this to model a transition period — for example, retire in year 1 but delay drawing on this portfolio until Social Security starts in year 5. In years before this, the portfolio compounds uninterrupted.</p>
+
+  <!-- INPUTS: INFLATION -->
+  <h2 id="go-inp-inflation">Inflation &amp; real returns</h2>
+
+  <h3>What the inflation rate controls</h3>
+  <p>The inflation rate converts <em>every displayed portfolio value</em> from nominal dollars into <strong>today's real purchasing power</strong>. It does not change the withdrawal amount or additions in the simulation — those stay constant in nominal terms. The formula applied to every displayed value is:</p>
+  <div class="formula">
+    Real value at year Y  =  Nominal portfolio value ÷ (1 + inflation)^Y
+    <br><br>
+    <span class="c">Example at 3% inflation:</span>
+    Year 10:  nominal $3.7M ÷ 1.03^10 = $2.8M  (today's purchasing power)
+    Year 30:  nominal $13.7M ÷ 1.03^30 = $5.7M  (today's purchasing power)
+  </div>
+  <p>Set inflation to 0% and every displayed value is nominal — identical to setting no inflation adjustment at all. The default of 3% reflects a typical long-run US inflation expectation.</p>
+
+  <div class="box box-info">
+    <div class="box-tag">Why constant nominal withdrawal?</div>
+    <p>You entered $80,000 because that is what you spend today. In nominal terms, $80,000 is what you will withdraw each year. The real-terms display does the rest: in year 30 at 3% inflation, that $80,000 is worth $80,000 ÷ 1.03^30 ≈ $33,000 in today's purchasing power — so you can see how your real spending erodes over time if costs rise. If you want to model maintaining constant real spending, use <strong>% of portfolio</strong> withdrawal mode, which naturally adjusts with portfolio value.</p>
+  </div>
+
+  <h3>Real CAGR in the percentile table</h3>
+  <p>Because portfolio values are shown in real terms, the CAGR figure displayed in each milestone cell is also the <strong>real CAGR</strong> of S&amp;P 500 returns — the nominal compound return minus the inflation drag. At 8% nominal S&amp;P return and 3% inflation, real CAGR ≈ 4.85%. This keeps the return figure consistent with the real-dollar portfolio values shown.</p>
+
+  <!-- INPUTS: ADDITIONS -->
+  <h2 id="go-inp-additions">Annual additions</h2>
+
+  <h3>Annual addition ($)</h3>
+  <p>An amount added to the portfolio at the end of each year during the accumulation period, in today's dollars. Additions are applied <em>after</em> the market return for that year and <em>before</em> withdrawals. The nominal addition amount stays constant — it does not grow with inflation in the simulation (consistent with the constant-nominal withdrawal model). If the portfolio has depleted to zero, subsequent additions can revive it provided the addition exceeds the withdrawal.</p>
+
+  <h3>Additions for # years</h3>
+  <p>How many years from year 1 the annual addition continues. Set to 0 (or leave blank) to disable additions entirely regardless of the amount entered.</p>
+
+  <!-- INPUTS: HORIZON -->
+  <h2 id="go-inp-horizon">Simulation horizon &amp; return window</h2>
+
+  <h3>Simulation horizon</h3>
+  <table>
+    <tr><th>Setting</th><th>Milestone columns</th><th>Typical use case</th></tr>
+    <tr><td><strong>20 years</strong></td><td>Yr 10 · Yr 15 · Yr 20</td><td>Shorter horizon; sequence-risk focus; bridge to pension</td></tr>
+    <tr><td><strong>30 years</strong></td><td>Yr 10 · Yr 20 · Yr 30</td><td>Standard retirement planning; most-studied in literature</td></tr>
+    <tr><td><strong>40 years</strong></td><td>Yr 10 · Yr 20 · Yr 40</td><td>FIRE / early retirement; very long planning horizon</td></tr>
+  </table>
+
+  <h3>S&amp;P 500 return window</h3>
+  <p>A dual-handle slider that restricts which historical years can be drawn from. Default is the full 1954–2023 pool (70 years). Narrowing it lets you stress-test specific eras — e.g. restrict to 1966–1985 to simulate a prolonged stagflation scenario, or to 1985–2023 to exclude that era but include the GFC and COVID crash. The info pill below the slider shows the current pool size and sampling mode.</p>
+  <p>In <strong>No replacement</strong> mode the pool must contain at least as many years as your simulation horizon. Bootstrap and Block bootstrap work with any pool size ≥ block size.</p>
+
+  <!-- INPUTS: SAMPLING -->
+  <h2 id="go-inp-sampling">Sampling method</h2>
+  <p>The most consequential methodological choice. It determines how the 70-year historical pool is assembled into each simulated year sequence.</p>
+  <div class="sg">
+    <div class="sc">
+      <h5>No replacement</h5>
+      <p>Shuffles the pool and takes the first N years. Each historical year appears at most once per simulation. Cannot repeat crash years. <strong>Artificially compresses tail risk</strong> — P10 outcomes are better than they should be.</p>
+    </div>
+    <div class="sc rec">
+      <h5>Bootstrap <span class="badge">Default</span></h5>
+      <p>Each year drawn independently with replacement. The same year can appear multiple times — 2008 can occur twice, or five bad years can cluster at retirement. Produces <strong>realistic fat tails</strong>. Standard method in serious financial planning software.</p>
+    </div>
+    <div class="sc">
+      <h5>Block bootstrap</h5>
+      <p>Draws consecutive blocks of 3, 5, or 7 years with replacement. Preserves the autocorrelation of real markets — crashes cluster. Best for capturing multi-year bear market dynamics. Select block size after enabling.</p>
+    </div>
+  </div>
+
+  <div class="box box-caution">
+    <div class="box-tag">Why no-replacement understates risk</div>
+    <p>In a 30-year no-replacement simulation, the worst years in the 70-year pool (1974, 2001, 2002, 2008…) must each appear exactly once. It is structurally impossible for all three dot-com crash years and 2008 to fall in your first five retirement years — even though that could happen in reality. Bootstrap removes this constraint.</p>
+  </div>
+
+  <!-- INPUTS: RUNS -->
+  <h2 id="go-inp-runs">Number of simulations</h2>
+  <p>How many independent runs to perform: <strong>1,000</strong>, <strong>3,000</strong>, or <strong>5,000</strong>. More runs produce smoother percentile bands and more stable tail estimates. For quick exploration use 1,000; for a final decision use 5,000. The extra seconds are worth it for the P10 reliability.</p>
+
+  <!-- OUTPUTS: CARDS -->
+  <h2 id="go-out-cards">Milestone cards (P10 / P25 / P50 / P90)</h2>
+  <p>Four summary cards at the top of the dashboard show the portfolio value — in today's real dollars — at the end of the simulation horizon, at four percentile outcomes.</p>
+  <table>
+    <tr><th>Card</th><th>Meaning</th></tr>
+    <tr><td><span class="p p10">P10</span></td><td>Only 10% of runs ended with a value this low or lower. Your pessimistic stress-test floor. If it reads <em>"Depleted yr 18"</em>, 10% of market paths exhausted the portfolio by year 18.</td></tr>
+    <tr><td><span class="p p25">P25</span></td><td>One-in-four runs ended at this level or below. A plausible bad-but-not-catastrophic scenario to plan against.</td></tr>
+    <tr><td><span class="p p50">P50</span></td><td>The median outcome — half of all runs ended above this, half below. The most likely single scenario.</td></tr>
+    <tr><td><span class="p p90">P90</span></td><td>Top 10% of market environments. Useful for calibrating upside but not for planning — only 1-in-10 paths reach here.</td></tr>
+  </table>
+  <p>The sub-text below each card shows the real percentage gain or loss versus the starting portfolio, or — when the portfolio depleted — the specific year it ran out of money. Depletion years are derived from the representative simulation at each percentile rank, sorted so P10 depleted earliest and P25 later (monotonic by construction).</p>
+
+  <!-- OUTPUTS: FAN -->
+  <h2 id="go-out-fan">Fan chart</h2>
+  <p>The fan chart plots all five percentile bands (<span class="p p10">P10</span> <span class="p p25">P25</span> <span class="p p50">P50</span> <span class="p p75">P75</span> <span class="p p90">P90</span>) over every year of the simulation in today's real dollars. At each year independently, X% of simulations had a real portfolio value at or below that line.</p>
+  <p>A fan that spreads wide indicates high outcome uncertainty. The P10 line touching zero means at least 10% of simulations have depleted by that year. When inflation is active, "(today's dollars)" appears in the chart title as a reminder that all values are purchasing-power adjusted.</p>
+  <div class="box box-info">
+    <div class="box-tag">Marginal percentile bands</div>
+    <p>Each band is a <em>marginal</em> percentile: the P10 value at year 10 comes from whatever simulation ranked 10th-percentile at year 10, which may differ from the one that ranked 10th at year 20. This ensures every band is strictly ordered (P10 &lt; P25 &lt; … &lt; P90 at every year) but no single line represents one simulation's trajectory. The Percentile Scenarios tab (if enabled) shows actual individual paths.</p>
+  </div>
+
+  <!-- OUTPUTS: HISTOGRAM -->
+  <h2 id="go-out-hist">Year-N histogram</h2>
+  <p>A bar chart of the distribution of final portfolio values (in real dollars) across all runs. Each bar covers a range of ending values; height shows the fraction of runs that landed there. Right-skewed distributions (long right tail) are normal — most runs finish in a moderate range but a few exceptional bull markets produce very large values. Depletion mass shows as a spike at $0 on the left.</p>
+
+  <!-- OUTPUTS: HEATMAP -->
+  <h2 id="go-out-heat">Outcome density heat map</h2>
+  <p>Shows the full joint distribution of real portfolio values over time. Darker cells mean more simulation runs passed through that value at that year. Overlay lines mark P25, P50, and P75. Unlike the fan chart, the heat map reveals the shape of the distribution — bimodal clusters, how spread evolves, and where most simulations concentrate year by year.</p>
+
+  <!-- OUTPUTS: TABLE -->
+  <h2 id="go-out-table">Percentile breakdown table</h2>
+  <p>The table shows, for each percentile row, the real portfolio value and real CAGR at each milestone year, plus total and annual withdrawal statistics.</p>
+  <h4>Columns explained</h4>
+  <table>
+    <tr><th>Column</th><th>What it shows</th></tr>
+    <tr><td><strong>Year 10 / Year 20 / Year N</strong></td><td>Real portfolio value at that milestone. The smaller figure below it is the <strong>real CAGR</strong> of the S&amp;P 500 draws used in simulations at that percentile — nominal compound return minus inflation. Uses marginal percentiles: each column independently sorted so all values are monotonically ordered P10 &lt; P25 &lt; … &lt; P90.</td></tr>
+    <tr><td><strong>Total withdrawn (yr N)</strong></td><td>Sum of all nominal withdrawals over the full horizon for the representative simulation at that percentile rank. Nominal (not deflated) — it represents the actual dollars that left the portfolio.</td></tr>
+    <tr><td><strong>Annual wd min–avg–max</strong></td><td>Smallest, average, and largest single-year withdrawal over the simulation. In Fixed $ mode with no inflation growth these are all equal to the withdrawal amount (or less near depletion). In % mode they vary with portfolio value.</td></tr>
+  </table>
+
+  <!-- OUTPUTS: DEPLETION -->
+  <h2 id="go-out-depletion">Depletion risk chart</h2>
+  <p>Shows the real portfolio value over time for the <span class="p p25">P25</span> <span class="p p50">P50</span> <span class="p p75">P75</span> <span class="p p90">P90</span> representative paths, with a dashed red $0 threshold line. When a percentile line approaches $0, those simulations are running out of money. Below the chart, three tiles show the fraction of simulations that depleted by each milestone year — green (&lt; 2%), amber (2–10%), or red (&gt; 10%). In % withdrawal mode depletion is mathematically impossible (a fraction of a positive number stays positive) so the chart shows an explanatory note.</p>
+
+  <!-- CONCEPT: MC -->
+  <h2 id="go-c-montecarlo">Monte Carlo simulation</h2>
+  <p>Monte Carlo simulation replaces a single fixed assumed return with thousands of random scenarios. Each scenario draws a different sequence of historical annual returns and runs the full simulation — including withdrawals, additions, and the inflation deflation — through that sequence. The result is a <em>distribution</em> of outcomes rather than one number.</p>
+  <p>This matters because sequence of returns matters as much as average return. A portfolio earning exactly 7%/yr for 30 years looks very different from one that averages 7% but fluctuates between −40% and +50%. The latter can deplete if the bad years cluster at the start of retirement. Monte Carlo maps this uncertainty explicitly.</p>
+
+  <!-- CONCEPT: PERCENTILES -->
+  <h2 id="go-c-percentiles">Percentiles</h2>
+  <p>Sort 1,000 simulation ending values from lowest to highest. The percentiles describe where in that ranked list a given value falls:</p>
+  <ul>
+    <li><span class="p p10">P10</span> — only 100 of 1,000 runs ended below this. The worst-10% market environment.</li>
+    <li><span class="p p50">P50</span> — the median: 500 runs above, 500 below.</li>
+    <li><span class="p p90">P90</span> — 900 of 1,000 runs ended below this. Only the best-10% of markets reached here.</li>
+  </ul>
+  <p>Most planners use <span class="p p10">P10</span> or <span class="p p25">P25</span> as their planning scenario — not the median, which represents "things going reasonably well."</p>
+
+  <!-- CONCEPT: REAL VS NOMINAL -->
+  <h2 id="go-c-realterms">Real vs nominal values</h2>
+  <p>A <strong>nominal</strong> value is the face dollar amount — what you would count in your bank account. A <strong>real</strong> value converts that to today's purchasing power by dividing out the cumulative inflation.</p>
+  <div class="formula">
+    Nominal portfolio at year 30:  $13,700,000
+    Inflation deflator at 3%:      1.03^30 = 2.427
+    Real value (today's dollars):  $13,700,000 ÷ 2.427 = $5,645,000
+  </div>
+  <p>This simulator shows real values because that is what actually matters for retirement: not how many dollars you have, but how much they can buy. Entering "$80,000 withdrawal" means $80,000 in today's spending power — the simulator keeps the nominal withdrawal constant and shows you the real-dollar portfolio trajectory.</p>
+
+  <!-- CONCEPT: SAMPLING -->
+  <h2 id="go-c-sampling">Sampling methods in depth</h2>
+  <h3>No replacement — the known flaw</h3>
+  <p>Each historical year used at most once. The average return of every simulation equals the historical average exactly. But the worst years must each appear precisely once — never twice — so truly catastrophic clustered scenarios are structurally impossible. P10 looks better than reality supports.</p>
+  <h3>Bootstrap — the minimal fix</h3>
+  <p>Draw each year independently at random with replacement. 2008 can appear twice. The three dot-com crash years can all fall in your first five retirement years. This restores realistic fat tails. The trade-off: historically impossible sequences (e.g. 20 consecutive great years) also become possible, though vanishingly rare.</p>
+  <h3>Block bootstrap — preserving crash clustering</h3>
+  <p>Real markets have autocorrelation: bear markets last multiple years; recoveries follow. Simple bootstrap destroys this structure by sampling independent years. Block bootstrap draws consecutive multi-year blocks — a block starting in 2000 brings 2000, 2001, 2002 as a package, preserving the dot-com bust in sequence. Block size of 3–7 years controls the correlation window.</p>
+
+  <!-- CONCEPT: CAGR -->
+  <h2 id="go-c-cagr">Real CAGR vs arithmetic average return</h2>
+  <p>The percentile table shows <strong>real CAGR</strong> under each portfolio value — not the arithmetic average of returns. Three related concepts:</p>
+  <table>
+    <tr><th>Measure</th><th>Formula</th><th>Example: +50% then −50%</th></tr>
+    <tr><td>Arithmetic average</td><td>(r₁ + r₂ + … + rₙ) / n</td><td>(50 − 50) / 2 = <strong>0%</strong></td></tr>
+    <tr><td>Nominal CAGR</td><td>(∏(1+rᵢ))^(1/n) − 1</td><td>(1.5 × 0.5)^½ − 1 = <strong>−13.4%</strong></td></tr>
+    <tr><td>Real CAGR</td><td>Nominal CAGR ÷ (1+inflation) − 1</td><td>At 3% inf: −13.4% adj → more negative</td></tr>
+  </table>
+  <p>The gap between arithmetic average and CAGR is called <strong>volatility drag</strong> — the higher the volatility, the larger the gap. CAGR is the correct measure for compounded portfolio performance. Real CAGR removes the inflation component to keep it consistent with the real-dollar portfolio values shown.</p>
+
+  <!-- CONCEPT: SEQUENCE -->
+  <h2 id="go-c-sequence">Sequence-of-returns risk</h2>
+  <p>Two portfolios can average the same return over 30 years but end in very different places depending on <em>when</em> the bad years occur. A −30% return in year 1 of retirement reduces your base before any recovery — you withdraw from a smaller pool for all subsequent years. The same −30% in year 25, after 24 years of compounding, has far less impact.</p>
+  <p>This is the core reason Monte Carlo simulation is far more informative than a fixed-return projection: it randomly allocates sequences of good and bad years across retirement — some simulations put the GFC in year 2, others put it in year 22 — and shows the full distribution of outcomes that result.</p>
+
+  <!-- DATA SOURCE -->
+  <h2 id="go-datasource">Data source</h2>
+  <p>The simulator uses <strong>S&amp;P 500 annual total return data for 1954–2023</strong> (70 years). Total return means price appreciation plus dividends reinvested — the complete return an index investor would have received.</p>
+  <table>
+    <tr><th>Source</th><th>Role</th></tr>
+    <tr><td><a href="http://www.econ.yale.edu/~shiller/data.htm" target="_blank">Robert Shiller / Yale</a></td><td>Primary long-run U.S. equity return series</td></tr>
+    <tr><td>Standard &amp; Poor's official annual releases</td><td>Verification for recent decades</td></tr>
+    <tr><td><a href="https://www.macrotrends.net/2526/sp-500-historical-annual-returns" target="_blank">Macrotrends</a></td><td>Cross-reference and spot-checking</td></tr>
+  </table>
+  <p>The raw returns stored in the simulator are <em>nominal</em> total returns. The inflation adjustment is applied to the <em>display</em> of portfolio values, not to the market returns themselves.</p>
+
+  <!-- LIMITATIONS -->
+  <h2 id="go-limitations">Limitations &amp; caveats</h2>
+  <div class="box box-caution">
+    <div class="box-tag">Planning tool, not a guarantee</div>
+    <p>All results are probabilistic estimates based on historical data. Past market performance does not guarantee future results. Use this to develop intuition and explore scenarios — not as the sole basis for major financial decisions.</p>
+  </div>
+  <h3>US equities only</h3>
+  <p>The return pool is 100% S&amp;P 500 — large-cap US stocks. A diversified portfolio including bonds, international equities, or real estate will behave differently, typically with lower volatility and lower average returns. Results likely overstate returns for balanced portfolios.</p>
+  <h3>No fees or taxes</h3>
+  <p>Fund expense ratios, advisor fees, and capital gains taxes are not modelled. Even a 0.5% annual fee drag compounds to roughly a 14% portfolio reduction over 30 years. Consider reducing your assumed withdrawal accordingly.</p>
+  <h3>Nominal display of withdrawal statistics</h3>
+  <p>Portfolio values are shown in real dollars, but the withdrawal statistics in the percentile table (total withdrawn, min/avg/max annual withdrawal) are kept in nominal dollars — the actual cash that left the portfolio. The distinction is noted in the footnote after each run.</p>
+  <h3>70-year pool</h3>
+  <p>With only 70 years of data, even bootstrap sampling is limited to the regimes present in 1954–2023. Novel scenarios — sustained hyperinflation, multi-decade depression — are underrepresented relative to their true long-run probability.</p>
+
+  <!-- GLOSSARY -->
+  <h2 id="go-glossary">Glossary</h2>
+  <table>
+    <tr><th>Term</th><th>Definition</th></tr>
+    <tr><td><strong>Block bootstrap</strong></td><td>Sampling method drawing consecutive multi-year blocks with replacement, preserving return autocorrelation.</td></tr>
+    <tr><td><strong>Bootstrap</strong></td><td>Sampling with replacement — each year drawn independently; the same year may appear multiple times.</td></tr>
+    <tr><td><strong>CAGR</strong></td><td>Compound Annual Growth Rate: <code>(∏(1+rᵢ))^(1/n)−1</code>. Always ≤ arithmetic mean. Real CAGR additionally removes inflation.</td></tr>
+    <tr><td><strong>Depletion</strong></td><td>Portfolio value reaching $0. The simulator records the first year this occurs per simulation.</td></tr>
+    <tr><td><strong>Marginal percentile</strong></td><td>The p-th percentile of a distribution at a single point in time, computed independently of other time points.</td></tr>
+    <tr><td><strong>Monte Carlo simulation</strong></td><td>Modelling uncertainty by running thousands of random scenarios and analysing the outcome distribution.</td></tr>
+    <tr><td><strong>Nominal value</strong></td><td>A dollar amount unadjusted for inflation — the face value.</td></tr>
+    <tr><td><strong>P10 / P25 / P50 / P75 / P90</strong></td><td>Percentiles of the outcome distribution. P10 means 10% of simulations produced a worse result.</td></tr>
+    <tr><td><strong>Real value</strong></td><td>A dollar amount adjusted for inflation to reflect today's purchasing power: <code>nominal ÷ (1+inf)^year</code>.</td></tr>
+    <tr><td><strong>Sequence-of-returns risk</strong></td><td>The risk that the order of returns — not just the average — negatively affects the portfolio, especially during withdrawals.</td></tr>
+    <tr><td><strong>Total return</strong></td><td>Investment return including both price change and dividends reinvested.</td></tr>
+    <tr><td><strong>Volatility drag</strong></td><td>The mathematical gap between arithmetic mean return and CAGR, which grows with return volatility.</td></tr>
+    <tr><td><strong>Withdrawal rate</strong></td><td>Annual withdrawal as a fraction of starting portfolio. $80K on a $2M portfolio = 4% withdrawal rate.</td></tr>
+  </table>
+  <hr>
+  <p style="font-size:12.5px;color:var(--faint);text-align:center">Portfolio Into The Future · A Probabilistic Outlook by Praveen Ramachandra</p>
+  </div>
+</div>
+
 </body>
 </html>
