@@ -528,16 +528,7 @@ canvas#scaleLegend { border-radius: 3px; }
     <div class="card">
       <div class="card-hdr"><span class="card-title">Percentile breakdown at each milestone</span></div>
       <table class="pt-table">
-        <thead>
-          <tr id="ptHead">
-            <th>Percentile</th>
-            <th id="thMs0">Year 10</th>
-            <th id="thMs1">Year 20</th>
-            <th id="thMs2">Year 30</th>
-            <th id="thTotal">Total withdrawn (yr 30)</th>
-            <th>Annual withdrawal — min / avg / max</th>
-          </tr>
-        </thead>
+        <thead id="ptHead"></thead>
         <tbody id="ptBody"></tbody>
       </table>
     </div>
@@ -609,6 +600,13 @@ let poolStart = 1954, poolEnd = 2023;
 const MIN_YEAR = 1954, MAX_YEAR = 2023;
 
 function getMilestones(yrs) {
+  /* 5-year milestone columns for the breakdown table */
+  const ms = [];
+  for (let m = 5; m <= yrs; m += 5) ms.push(m);
+  return ms;
+}
+function getDepMilestones(yrs) {
+  /* 3-point milestones for the depletion chart only */
   if (yrs === 20) return [10, 15, 20];
   if (yrs === 40) return [10, 20, 40];
   return [10, 20, 30];
@@ -873,7 +871,8 @@ function runMC() {
   const YEARS   = simYears;
   const wdYear  = Math.min(YEARS, Math.max(1, parseInt(document.getElementById('wdYear').value) || 5));
   document.getElementById('wdYear').max = YEARS;
-  const MS      = getMilestones(YEARS);
+  const MS      = getMilestones(YEARS);       /* 5-yr table milestones */
+  const DEP_MS  = getDepMilestones(YEARS);    /* 3-pt depletion milestones */
   const rawInf        = parseFloat(document.getElementById('inflationRate').value);
   const capturedInflation = Math.max(0, isNaN(rawInf) ? 0.03 : rawInf / 100);
   const capturedAddAmt    = Math.max(0, parseFloat(document.getElementById('addAmt').value)   || 0);
@@ -906,14 +905,11 @@ function runMC() {
       const end = Math.min(done + CHUNK, N);
       for (let s = done; s < end; s++) {
         const pool = getPool(pool70, YEARS, capturedSampling, capturedBlock);
-        let v = start, cumWd = 0, depYear = 0;
-        let annWdMin = Infinity, annWdMax = 0, annWdSum = 0, annWdCnt = 0;
-        let retProd0 = 1, retProd1 = 1, retProd2 = 1;
+        let v = start, depYear = 0;
+        const retProds = new Array(MS.length).fill(1);
         for (let y = 0; y < YEARS; y++) {
           const factor = 1 + pool[y].r / 100;
-          if (y + 1 <= MS[0]) retProd0 *= factor;
-          if (y + 1 <= MS[1]) retProd1 *= factor;
-          retProd2 *= factor;
+          MS.forEach((m, i) => { if (y + 1 <= m) retProds[i] *= factor; });
 
           /* 1. Apply market return */
           v *= factor;
@@ -923,10 +919,11 @@ function runMC() {
             v += capturedAddAmt;
           }
 
-          /* 3. Withdrawal — entered in today's dollars, constant nominal every year.
-                Inflation is accounted for in the display by deflating portfolio values,
-                not by inflating the withdrawal amount.
+          /* 3. Withdrawal — nominal amount taken from portfolio; converted to today's
+                dollars before tracking so all stats are consistent with the real-dollar
+                portfolio values shown in the table and charts.
                 % mode has a $5,000 nominal floor (withdraw all if below). */
+          const realDeflator = Math.pow(1 + capturedInflation, y + 1);
           if (y + 1 >= wdYear) {
             let wd = 0;
             if (capturedMode === 'fixed') {
@@ -936,39 +933,27 @@ function runMC() {
               wd = (pctWd > 0 && pctWd < 5000 && v > 0) ? v   /* $5k floor: withdraw all when amount is trivially small */
                  : Math.max(0, pctWd);
             }
-            v -= wd; cumWd += wd;
-            if (wd > 0) {
-              if (wd < annWdMin) annWdMin = wd;
-              if (wd > annWdMax) annWdMax = wd;
-              annWdSum += wd; annWdCnt++;
-            }
+            v -= wd;
           }
 
-          /* 4. Clamp; record first depletion year; push REAL (today's $) value.
-                Dividing by the cumulative inflation factor converts nominal portfolio
-                value to its equivalent in today's purchasing power. */
+          /* 4. Clamp; record first depletion year; push REAL (today's $) value. */
           v = Math.max(0, v);
           if (v <= 0 && depYear === 0) depYear = y + 1;
-          const realDeflator = Math.pow(1 + capturedInflation, y + 1);
           yearVals[y].push(v / realDeflator);
         }
-        /* store path summary — all values from the same simulation */
+        /* simSummary layout:
+           [0 .. NMS-1]       : real portfolio value at each 5-yr milestone
+           [NMS .. 2*NMS-1]   : real CAGR at each milestone
+           [2*NMS]            : depYear (first year portfolio hit $0, 0=never) */
+        const NMS = MS.length;
         simSummary.push([
-          yearVals[MS[0]-1][s],               /* [0] vMs0 */
-          yearVals[MS[1]-1][s],               /* [1] vMs1 */
-          yearVals[MS[2]-1][s],               /* [2] vMs2 = final year */
-          cumWd,                              /* [3] */
-          annWdCnt > 0 ? annWdMin : 0,        /* [4] annMin */
-          annWdCnt > 0 ? annWdSum / annWdCnt : 0, /* [5] annAvg */
-          annWdMax,                           /* [6] annMax */
-          (Math.pow(retProd0 / Math.pow(1 + capturedInflation, MS[0]), 1 / MS[0]) - 1) * 100,  /* [7] real CAGR % to milestone 0 */
-          (Math.pow(retProd1 / Math.pow(1 + capturedInflation, MS[1]), 1 / MS[1]) - 1) * 100,  /* [8] real CAGR % to milestone 1 */
-          (Math.pow(retProd2 / Math.pow(1 + capturedInflation, MS[2]), 1 / MS[2]) - 1) * 100,  /* [9] real CAGR % to milestone 2 */
-          depYear                                          /* [10] year portfolio first hit 0 (0=never) */
+          ...MS.map(m => yearVals[m - 1][s]),
+          ...MS.map((m, i) => (Math.pow(retProds[i] / Math.pow(1 + capturedInflation, m), 1 / m) - 1) * 100),
+          depYear
         ]);
-        if (yearVals[MS[0]-1][s] <= 0) depCounts[0]++;
-        if (yearVals[MS[1]-1][s] <= 0) depCounts[1]++;
-        if (yearVals[MS[2]-1][s] <= 0) depCounts[2]++;
+        if (yearVals[DEP_MS[0]-1][s] <= 0) depCounts[0]++;
+        if (yearVals[DEP_MS[1]-1][s] <= 0) depCounts[1]++;
+        if (yearVals[DEP_MS[2]-1][s] <= 0) depCounts[2]++;
       }
       done = end;
       const pct = Math.round(done / N * 100);
@@ -976,7 +961,7 @@ function runMC() {
       document.getElementById('progLabel').textContent = done.toLocaleString() + ' / ' + N.toLocaleString() + ' simulations';
 
       if (done < N) { requestAnimationFrame(step); }
-      else { finalize(yearVals, simSummary, MS, depCounts, N, start, wdAmt, wdYear, YEARS, capturedMode, capturedSampling, capturedBlock, capturedAddAmt, capturedAddYrs, capturedInflation); }
+      else { finalize(yearVals, simSummary, MS, DEP_MS, depCounts, N, start, wdAmt, wdYear, YEARS, capturedMode, capturedSampling, capturedBlock, capturedAddAmt, capturedAddYrs, capturedInflation); }
     }
     step();
   }, 20);
@@ -985,21 +970,14 @@ function runMC() {
 /* ═══════════════════════════════════════
    RENDER RESULTS
 ═══════════════════════════════════════ */
-function finalize(yearVals, simSummary, MS, depCounts, N, start, wdAmt, wdYear, YEARS, capturedMode, capturedSampling, capturedBlock, capturedAddAmt, capturedAddYrs, capturedInflation) {
+function finalize(yearVals, simSummary, MS, DEP_MS, depCounts, N, start, wdAmt, wdYear, YEARS, capturedMode, capturedSampling, capturedBlock, capturedAddAmt, capturedAddYrs, capturedInflation) {
   yearVals.forEach(a => a.sort((x, y) => x - y));
 
-  /* Extract per-simulation distributions and sort each independently.
-     Marginal percentiles → every column is monotonic across rows (P10 ≤ P25 ≤ … ≤ P90).
-     min ≤ avg ≤ max is still preserved within each row by stochastic ordering:
-     since annMin_s ≤ annAvg_s ≤ annMax_s holds for every individual simulation s,
-     the k-th smallest of each sorted array maintains the same inequality. */
-  const allCumWd  = simSummary.map(r => r[3]).sort((a, b) => a - b);
-  const allAnnMin = simSummary.map(r => r[4]).sort((a, b) => a - b);
-  const allAnnAvg = simSummary.map(r => r[5]).sort((a, b) => a - b);
-  const allAnnMax = simSummary.map(r => r[6]).sort((a, b) => a - b);
-  const allRet0   = simSummary.map(r => r[7]).sort((a, b) => a - b);
-  const allRet1   = simSummary.map(r => r[8]).sort((a, b) => a - b);
-  const allRet2   = simSummary.map(r => r[9]).sort((a, b) => a - b);
+  const NMS = MS.length;   /* number of 5-year milestones */
+  const DEP_IDX = 2 * NMS; /* index of depYear in simSummary */
+
+  /* Per-milestone marginal CAGR distributions (stored at [NMS..2*NMS-1]) */
+  const allCAGRs = MS.map((m, i) => simSummary.map(r => r[NMS + i]).sort((a, b) => a - b));
 
   const PS = [10, 25, 50, 75, 90];
 
@@ -1007,20 +985,13 @@ function finalize(yearVals, simSummary, MS, depCounts, N, start, wdAmt, wdYear, 
   const series = {};
   PS.forEach(p => { series[p] = yearVals.map(a => Math.max(0, Math.round(pctile(a, p)))); });
 
-  /* Marginal table rows — each cell independently sorted, all monotonic */
+  /* Marginal table rows — all milestone columns independently sorted → monotonic.
+     vals[i] = portfolio value at 5-yr milestone i; cagrs[i] = real CAGR to that milestone. */
   const tableRows = {};
   PS.forEach(p => {
     tableRows[p] = {
-      v0:     Math.round(pctile(yearVals[MS[0] - 1], p)),
-      v1:     Math.round(pctile(yearVals[MS[1] - 1], p)),
-      v2:     Math.round(pctile(yearVals[MS[2] - 1], p)),
-      cumWd:  Math.round(pctile(allCumWd,  p)),
-      annMin: Math.round(pctile(allAnnMin, p)),
-      annAvg: Math.round(pctile(allAnnAvg, p)),
-      annMax: Math.round(pctile(allAnnMax, p)),
-      ret0:   +pctile(allRet0, p).toFixed(2),  /* avg S&P return % to milestone 0 */
-      ret1:   +pctile(allRet1, p).toFixed(2),  /* avg S&P return % to milestone 1 */
-      ret2:   +pctile(allRet2, p).toFixed(2)   /* avg S&P return % to milestone 2 */
+      vals:  MS.map((m, i) => Math.round(pctile(yearVals[m - 1], p))),
+      cagrs: MS.map((m, i) => +pctile(allCAGRs[i], p).toFixed(2))
     };
   });
 
@@ -1029,27 +1000,25 @@ function finalize(yearVals, simSummary, MS, depCounts, N, start, wdAmt, wdYear, 
      or prevent results from being shown. capturedMode is used throughout to
      avoid mid-run toggle changes corrupting the display. */
 
-  /* Depletion years for each percentile's representative simulation.
-     Primary sort: final-year value ascending (higher = better).
-     Secondary sort: when final values tie at 0 (all depleted), earlier depletion
-     year = worse outcome = lower rank — ensures P10 depYear ≤ P25 depYear. */
+  /* Sort by final milestone value; tie-break by depletion year */
   simSummary.sort((a, b) => {
-    if (a[2] !== b[2]) return a[2] - b[2];        /* primary:   final value */
-    const da = a[10], db = b[10];
-    if (da > 0 && db > 0) return da - db;          /* secondary: earlier depletion = worse */
-    if (da > 0) return -1;                         /* depleted ranks below non-depleted */
+    const fi = NMS - 1;
+    if (a[fi] !== b[fi]) return a[fi] - b[fi];
+    const da = a[DEP_IDX], db = b[DEP_IDX];
+    if (da > 0 && db > 0) return da - db;
+    if (da > 0) return -1;
     if (db > 0) return  1;
     return 0;
   });
   const depYears = {};
   [10, 25, 50, 90].forEach(p => {
     const idx = Math.min(Math.floor(p / 100 * simSummary.length), simSummary.length - 1);
-    depYears[p] = simSummary[idx][10];
+    depYears[p] = simSummary[idx][DEP_IDX];
   });
 
   try { renderMilestoneCards(series, start, YEARS, depYears); } catch(e) { console.error('Milestone cards:', e); }
-  try { renderTable(tableRows, MS, YEARS, capturedMode); }     catch(e) { console.error('Table:', e); }
-  try { renderDepletion(depCounts, MS, N, capturedMode, series, YEARS); } catch(e) { console.error('Depletion:', e); }
+  try { renderTable(tableRows, MS, YEARS); }                    catch(e) { console.error('Table:', e); }
+  try { renderDepletion(depCounts, DEP_MS, N, capturedMode, series, YEARS); } catch(e) { console.error('Depletion:', e); }
 
   const infNote  = capturedInflation > 0
     ? ` Inflation: ${(capturedInflation*100).toFixed(1)}% — all portfolio values shown in today\'s real dollars (÷ 1.0${(capturedInflation*100).toFixed(0)}^yr). Withdrawal $${Math.round(wdAmt).toLocaleString()} is constant nominal.`
@@ -1309,12 +1278,12 @@ function renderHeatMap(yearVals, N, series, YEARS, start) {
 }
 
 /* ─── Percentile table ─── */
-function renderTable(tableRows, MS, YEARS, wdMode) {
-  /* Update column headers dynamically */
-  document.getElementById('thMs0').textContent  = 'Year ' + MS[0];
-  document.getElementById('thMs1').textContent  = 'Year ' + MS[1];
-  document.getElementById('thMs2').textContent  = 'Year ' + MS[2];
-  document.getElementById('thTotal').textContent = 'Total withdrawn (yr ' + YEARS + ')';
+function renderTable(tableRows, MS, YEARS) {
+  const NMS = MS.length;
+
+  /* Rebuild thead for however many 5-year milestones are active */
+  document.getElementById('ptHead').innerHTML =
+    `<tr><th>Scenario</th>${MS.map(m => `<th>Year&nbsp;${m}</th>`).join('')}</tr>`;
 
   const rowDef = [
     { p: 90, label: 'P90 — optimistic',  cls: 'cp90' },
@@ -1324,26 +1293,23 @@ function renderTable(tableRows, MS, YEARS, wdMode) {
     { p: 10, label: 'P10 — pessimistic', cls: 'cp10' },
   ];
 
-  function retStr(r) {
-    return `<div class="avg-ret">${r >= 0 ? '+' : ''}${r.toFixed(1)}% real CAGR</div>`;
-  }
-  function milestoneCell(val, ret, cls) {
-    return `<td class="${cls}">${fmtM(val)}${retStr(ret)}</td>`;
+  function cagrStr(c) {
+    if (typeof c !== 'number' || isNaN(c)) return '';
+    return `<div class="avg-ret">${c >= 0 ? '+' : ''}${c.toFixed(1)}% real CAGR</div>`;
   }
 
-  const wdStr = r => `${fmtMoney(r.annMin)} &ndash; ${fmtMoney(r.annAvg)} &ndash; ${fmtMoney(r.annMax)}`;
-
-  document.getElementById('ptBody').innerHTML = rowDef.map(({ p, label, cls }) => {
-    const r = tableRows[p];
-    return `<tr>
-      <td>${label}</td>
-      ${milestoneCell(r.v0, r.ret0, cls)}
-      ${milestoneCell(r.v1, r.ret1, cls)}
-      ${milestoneCell(r.v2, r.ret2, cls)}
-      <td class="${cls}">${fmtMoney(r.cumWd)}</td>
-      <td class="${cls}">${wdStr(r)}</td>
-    </tr>`;
-  }).join('');
+  document.getElementById('ptBody').innerHTML =
+    rowDef.map(({ p, label, cls }) => {
+      const r = tableRows[p];
+      if (!r || !Array.isArray(r.vals)) return `<tr><td colspan="${NMS + 1}">—</td></tr>`;
+      const cells = r.vals.map((v, i) =>
+        `<td class="${cls}">${fmtM(v)}${cagrStr(r.cagrs[i])}</td>`
+      ).join('');
+      return `<tr><td>${label}</td>${cells}</tr>`;
+    }).join('') +
+    `<tr><td colspan="${NMS + 1}" style="font-size:10.5px;color:var(--faint);padding:8px 10px;border-top:.5px solid var(--border)">
+      Each column is the marginal percentile across all simulations — P10 &lt; P25 &lt; P50 &lt; P75 &lt; P90 at every milestone year. All values in today&rsquo;s real dollars.
+    </td></tr>`;
 }
 
 /* ─── Depletion ─── */
